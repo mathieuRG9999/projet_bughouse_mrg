@@ -68,6 +68,18 @@ def creationTableau(ligne, colonne ) :
 def affichageTableau(echequier) :
     print(echequier)
 
+
+def finDeMatch(echequier, couleur) :
+    for i in range (8) :
+        for j in range (8) :
+            if (tab[i][j]==6*couleur) :
+                return false
+    if (couleur==1) :
+        print("Les noirs ont gagnés, felicitations !")
+    else :
+        print("Les blancs ont gagnés, felicitations")
+    return true
+
 # def main() :
 #     tab =creationTableau(8,8)
 #     remplissage(tab)

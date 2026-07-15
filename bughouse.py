@@ -93,19 +93,20 @@ class bughouse:
         return mouvement.mouvementEnsembleEchequierPourUneCouleur(tab,self.getCouleur(numPlateau))
 
     def listePose(self, numPlateau) :
+        reserveNum = 2 if numPlateau == 1 else 1  # MODIFICATION : Le plateau 1 pioche dans la réserve 2 (et inversement)
         listeFinale= []
         tab=self.quellePlateau(numPlateau)
         couleur=self.getCouleur(numPlateau)
-        liste=self.quelleListe(numPlateau)
-        for i1 in liste :
+        liste=self.quelleListe(reserveNum)
+        for i1 in set(liste) : #pour ne pas regarder plusieurs fois la même pièce
             for (i, j) in mouvement.listeCaseLibre(tab) :
-                if (self.validerAjoutPiece(liste, numPlateau, i1, i, j)) :
-                    depart= (-1, i)
+                if (self.validerAjoutPiece(reserveNum, numPlateau, i1, i, j)) :
+                    depart= (-1, i) #on met -1 pour rester sur des nombres et se diff des autres 
                     arrivee= (i, j)
-                    listeFinale.append(depart, arrivee)
+                    listeFinale.append((depart, arrivee))
         return listeFinale
             
     def getAllMouvement(self, numPlateau) :
         liste=self.listeCoupClassique(numPlateau)
-        liste.append(listePose(numPlateau))
+        liste.extend(self.listePose(numPlateau)) # MODIFICATION : Ajout de 'self.' et utilisation de '.extend()' au lieu de '.append()'
         return liste

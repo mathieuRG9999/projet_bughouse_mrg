@@ -202,6 +202,9 @@ def couleurBlanche(tab, i, j, couleur) :
     return (((couleur %2) ==0) and tab[i][j]>0) or (((couleur %2) !=0) and tab[i][j]<0)
 
 def mouvement(tab, i, j, couleur) :
+    if (plateau.finDeMatch(tab, couleur)) :
+        print("le match est fini, un roi est mort, il n'est plus possible de jouer")
+        return
     if (couleurBlanche(tab, i, j, couleur)) :
         print("la couleur actuelle est ", couleur)
         case =mouvementPossibleEchequierVide(tab, i, j, couleur)
