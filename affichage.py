@@ -125,9 +125,18 @@ etat2 = EtatJeu()
 # ─────────────────────────────────────────────
 #  CLIC SUR L'ÉCHIQUIER (déplacement normal ou pose depuis la réserve)
 # ─────────────────────────────────────────────
-def clicPlateau(etat, jeu, numPlateau, reserveNum, event, canvas, canvas_reserve):
+def clicPlateau(etat, jeu, numPlateau, reserveNum, event, canvas, reserve_canvas1, reserve_canvas2):
     tab = jeu.getPlateau(numPlateau)
     reserve = jeu.getListe(reserveNum)
+
+    # CORRECTION ICI :
+    # Si on est sur le Plateau 1, on pose depuis la Réserve 2 (affichée sur reserve_canvas1 sous le plateau 1)
+    # Si on est sur le Plateau 2, on pose depuis la Réserve 1 (affichée sur reserve_canvas2 sous le plateau 2)
+    canvas_reserve_pose = reserve_canvas1 if numPlateau == 1 else reserve_canvas2
+    
+    # Quand on mange sur le Plateau 1, la pièce va dans la Réserve 1 (qui est affichée sous le Plateau 2)
+    # Quand on mange sur le Plateau 2, la pièce va dans la Réserve 2 (qui est affichée sous le Plateau 1)
+    canvas_reserve_capture = reserve_canvas2 if numPlateau == 1 else reserve_canvas1
 
     col   = event.x // TAILLE_CASE
     ligne = event.y // TAILLE_CASE
@@ -141,7 +150,7 @@ def clicPlateau(etat, jeu, numPlateau, reserveNum, event, canvas, canvas_reserve
         if jeu.validerAjoutPiece(reserveNum, numPlateau, val, ligne, col):
             jeu.retirerDeReserve(reserveNum, etat.piece_reserve)
             tab[ligne][col] = val
-            affichageReserve(canvas_reserve, reserve)
+            affichageReserve(canvas_reserve_pose, reserve)
         etat.piece_reserve  = None
         etat.source_active  = None
         redessinerPlateau(canvas, tab)
@@ -166,11 +175,11 @@ def clicPlateau(etat, jeu, numPlateau, reserveNum, event, canvas, canvas_reserve
                 if valeurMangee != 0:
                     liste_reserve = jeu.getListe(numPlateau)
                     liste_reserve.append(valeurMangee)
+                    affichageReserve(canvas_reserve_capture, liste_reserve)
                 jeu.incrementerCouleur(numPlateau)
         etat.piece_plateau = None
         etat.source_active = None
         redessinerPlateau(canvas, tab)
-
 
 # ─────────────────────────────────────────────
 #  CLIC SUR LA RÉSERVE
@@ -224,16 +233,50 @@ def affichageDouble(jeu, tab1, tab2, reserve1, reserve2):
 
     # ── Bindings plateau 1 : coups + pose des pièces de la réserve2 ──
     canvas1.bind("<Button-1>",
-        lambda e: clicPlateau(etat1, jeu, 1, 2, e, canvas1, reserve_canvas2))
+        lambda e: clicPlateau(etat1, jeu, 1, 2, e, canvas1, reserve_canvas1, reserve_canvas2))
     reserve_canvas2.bind("<Button-1>",
         lambda e: clicReserve(etat1, reserve2, reserve_canvas2, e))
 
     # ── Bindings plateau 2 : coups + pose des pièces de la réserve1 ──
     canvas2.bind("<Button-1>",
-        lambda e: clicPlateau(etat2, jeu, 2, 1, e, canvas2, reserve_canvas1))
+        lambda e: clicPlateau(etat2, jeu, 2, 1, e, canvas2, reserve_canvas1, reserve_canvas2))
     reserve_canvas1.bind("<Button-1>",
         lambda e: clicReserve(etat2, reserve1, reserve_canvas1, e))
 
     fenetre.mainloop()
 
 
+# ─────────────────────────────────────────────
+#  MODE SIMPLE (un seul plateau, debug — sans réserve/bughouse)
+# ─────────────────────────────────────────────
+def affichageComplet(tab):
+    fenetre = tk.Tk()
+    fenetre.title("Échecs")
+    canvas = tk.Canvas(fenetre, width=TAILLE_PLATEAU, height=TAILLE_PLATEAU, highlightthickness=0)
+    canvas.pack()
+    redessinerPlateau(canvas, tab)
+
+    etat = EtatJeu()
+    couleur = {"valeur": 0}
+
+    def clic(event):
+        col   = event.x // TAILLE_CASE
+        ligne = event.y // TAILLE_CASE
+        if not (0 <= ligne < 8 and 0 <= col < 8):
+            return
+        if etat.piece_plateau is None:
+            if tab[ligne][col] != 0:
+                etat.piece_plateau = (ligne, col)
+                redessinerPlateau(canvas, tab, selection=(ligne, col))
+            return
+        li, co = etat.piece_plateau
+        if (li, co) != (ligne, col):
+            cases_possibles = mv.mouvement(tab, li, co, couleur["valeur"])
+            if (ligne, col) in cases_possibles:
+                mv.recupererValeurSupp(tab, li, co, ligne, col)
+                couleur["valeur"] = (couleur["valeur"] + 1) % 2
+        etat.piece_plateau = None
+        redessinerPlateau(canvas, tab)
+
+    canvas.bind("<Button-1>", clic)
+    fenetre.mainloop()
