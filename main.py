@@ -18,6 +18,7 @@ class Main:
         # Une seule fenêtre avec les deux plateaux côte à côte
         affichage.affichageDouble(self.jeu, tab1, tab2, reserve1, reserve2)
 
+
 if __name__ == "__main__":
     main = Main()
     main.run()

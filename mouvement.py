@@ -22,9 +22,11 @@ def PionMange(tab, i,j) :
     i=i+1*signe(tab[i][j])
     j1= j+1
     j2=j-1
+    if (not verifLimitHauteur(tab, i)) :
+        return liste
     if (limiteEchequierUnique(j1) and tab[i][j1]!=0) :
         liste.append((i, j1))
-    if  (limiteEchequierUnique(j2) and tab[i][j2]) : 
+    if  (limiteEchequierUnique(j2) and tab[i][j2]!=0) : 
         liste.append((i, j2))
     return liste
 
@@ -35,23 +37,26 @@ def mouvementPion(tab, i, j) :
     direction = signe(val)
     if (abs(val)==1) :
         if (((i==1) and (direction>0)) or ((i==6) and (direction<0))) :
-            if (tab[i+direction][j]==0) :
+            if (verifLimitHauteur(tab, i+direction) and tab[i+direction][j]==0) :
                 liste.append((i+direction, j))
-                if (tab[i+direction*2][j]==0) :
+                if (verifLimitHauteur(tab, i+2*direction) and tab[i+direction*2][j]==0) :
                     liste.append((i+2*direction, j))
         else  :
-            liste.append((i+direction, j))
+            if (verifLimitHauteur(tab, i+direction)) :
+                liste.append((i+direction, j))
     return liste
 
 def changement(tab, i, j, val, direction) :
     tab[i][j]=val*direction
+    return tab[i][j]
 
 def promotionPion(tab, i, j) :
     reponse=0
     while (reponse==0):
         direction = signe(tab[i][j])
         reponse = input("Quel promotion veut tu faire R (reine), T (tour), F (fou), C (cheval): ")
-        tab[i][j]=changement(tab, i, j, letter_to_troops(reponse), direction) 
+        changement(tab, i, j, letter_to_troops(reponse), direction)
+        reponse = letter_to_troops(reponse)
     print("vous avez fait la promotion d'un pion")
 
 def letter_to_troops(reponse) :
@@ -98,7 +103,7 @@ def mouvementTour(tab, i, j, couleur) :
             conditionAjoutMvtTour(precedent[u], x, y, caseDispo)
     return caseDispo  
 
-def mouvementReine( i, j, tab, couleur) :
+def mouvementReine(tab, i, j, couleur) :
     caseDispo= []
     caseDispo= mouvementFou(i, j)
     caseDispo+= (mouvementTour(tab, i , j, couleur))
@@ -149,7 +154,8 @@ def mouvementPossibleEchequierVide(tab, i, j, couleur) :
         return mouvementReine(tab, i, j, couleur)
     if (valeur==6) : #cas roi
         return mouvementRoi(i, j)
-    
+    return caseDispo
+
 def mouvementDansLesLimites(listeXY, tab) : #cette méthode pourra être optimiser afin de limiter les cases regarder, mais est ce que ca change vraiment qqch ?
     case= []
     for x,y in listeXY :
@@ -172,7 +178,7 @@ def valeurMange(tab, i, j) :
     return tab[i][j]
 
 def recupererValeurSupp(tab, xInitial, yInitial, xFutur, yFutur) :
-    ancienneValeur=tab[xInitial][yInitial]
+    ancienneValeur=tab[xFutur][yFutur]
     tab[xFutur][yFutur] = tab[xInitial][yInitial]
     tab[xInitial][yInitial] = 0
     return ancienneValeur #elle est à 0 s'il n'y avait rien
@@ -195,13 +201,10 @@ def mouvementLogique(tab, listeXY, couleur) :
 def couleurBlanche(tab, i, j, couleur) :
     return (((couleur %2) ==0) and tab[i][j]>0) or (((couleur %2) !=0) and tab[i][j]<0)
 
-# def incrementerCouleur(numPlateau) :
-#     bg.incrementerCouleur(numPlateau)
-
 def mouvement(tab, i, j, couleur) :
     if (couleurBlanche(tab, i, j, couleur)) :
         print("la couleur actuelle est ", couleur)
-        case =mouvementPossibleEchequierVide(tab, i, j)
+        case =mouvementPossibleEchequierVide(tab, i, j, couleur)
         case =mouvementDansLesLimites(case, tab)
         return mouvementLogique(tab, case, couleur)
 
@@ -217,6 +220,4 @@ def listeCaseLibre(tab) :
         for j in range (8) :
             if (tab[i][j]==0) :
                 liste.append((i,j))
-
-
-
+    return liste

@@ -3,20 +3,20 @@ import plateau
 
 class bughouse:
 
-    listestockagePlateau1 = []
-    listestockagePlateau2 = []
-    couleur1=0
-    couleur2=1
-
     def __init__(self):
         self.plateau1 = plateau.remplissage()
-        self.plateau2= plateau.remplissageInverse()
-
+        self.plateau2 = plateau.remplissageInverse()
+        self.listestockagePlateau1 = []
+        self.listestockagePlateau2 = []
+        self.couleur1 = 0
+        self.couleur2 = 1
 
     def remplirListe(self, xInitial, yInitial, xFutur, yFutur, numPlateau) :
-        liste=self.quelleListe(numPlateau)
-        plateau=self.quellePlateau(numPlateau)
-        liste.append(mouvement.recupererValeurSupp(plateau, xInitial, yInitial, xFutur, yFutur))
+        liste = self.quelleListe(numPlateau)
+        tab = self.quellePlateau(numPlateau)
+        valeurMangee = mouvement.recupererValeurSupp(tab, xInitial, yInitial, xFutur, yFutur)
+        if (valeurMangee != 0) :
+            liste.append(valeurMangee)
 
     def quelleListe(self, numPlateau) :
         p=[]
@@ -36,7 +36,7 @@ class bughouse:
 
     def caseLibrePlateau(self, numPlateau, i, j) :
         p=self.quellePlateau(numPlateau)
-        return not mouvement.caseEstOccupe(p, i, j)
+        return p[i][j]==0
     
     def deposerPice(self, numPlateau,  x,y,val) :
         p=self.quellePlateau(numPlateau)
@@ -72,9 +72,16 @@ class bughouse:
                 return True
         return False
 
-    def validerAjoutPiece(self, numPlateau, valeur, i , j) :
-        return self.valeurPresente(numPlateau, valeur) and self.caseLibrePlateau(numPlateau, i, j) and self.ajoutPionDansLesLimites(i, j)
-    
-    def ajoutPionDansLesLimites(self, i, j) :
-        return (0<=j<8 and 0<i<7) 
+    def validerAjoutPiece(self, reserveNum, numPlateau, valeur, i, j) :
+        # reserveNum : la réserve d'où vient la pièce (listestockagePlateauX)
+        # numPlateau : le plateau sur lequel on veut la poser
+        return self.valeurPresente(reserveNum, valeur) and self.caseLibrePlateau(numPlateau, i, j) and self.ajoutPionDansLesLimites(i, j)
 
+    def retirerDeReserve(self, reserveNum, index) :
+        liste = self.quelleListe(reserveNum)
+        if 0 <= index < len(liste) :
+            return liste.pop(index)
+        return None
+
+    def ajoutPionDansLesLimites(self, i, j) :
+        return (0<=j<8 and 0<i<7)
