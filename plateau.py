@@ -1,87 +1,77 @@
-import mouvement
-import plateau
+#1 pour pion
+#2 pour cheval
+#3 pour fou
+#4 pour tour
+#5 pour reine
+#6 pour roi
 
-class bughouse:
 
-    def __init__(self):
-        self.plateau1 = plateau.remplissage()
-        self.plateau2 = plateau.remplissageInverse()
-        self.listestockagePlateau1 = []
-        self.listestockagePlateau2 = []
-        self.couleur1 = 0
-        self.couleur2 = 1
+#1 pour le plateau 1
+#2 pour le plateau 2
 
-    def remplirListe(self, xInitial, yInitial, xFutur, yFutur, numPlateau) :
-        liste = self.quelleListe(numPlateau)
-        tab = self.quellePlateau(numPlateau)
-        valeurMangee = mouvement.recupererValeurSupp(tab, xInitial, yInitial, xFutur, yFutur)
-        if (valeurMangee != 0) :
-            liste.append(valeurMangee)
 
-    def quelleListe(self, numPlateau) :
-        p=[]
-        if (numPlateau==1) :
-            p=self.listestockagePlateau1
-        if (numPlateau==2) :
-            p=self.listestockagePlateau2
-        return p
+#valeur positive pour les blancs
+#valeur négatives pour les noirs
 
-    def quellePlateau(self, numPlateau) :
-        p=[]
-        if (numPlateau==1) :
-            p=self.plateau1
-        if (numPlateau==2) :
-            p=self.plateau2
-        return p
 
-    def caseLibrePlateau(self, numPlateau, i, j) :
-        p=self.quellePlateau(numPlateau)
-        return p[i][j]==0
     
-    def deposerPice(self, numPlateau,  x,y,val) :
-        p=self.quellePlateau(numPlateau)
-        mouvement.deposerPiece(p, val,x,y)
 
-    def getPlateau(self, numPlateau) :
-        p=self.quellePlateau(numPlateau)
-        return p
-    
-    def getListe(self, numPlateau) :
-        p=self.quelleListe(numPlateau)
-        return p
-    
-    def incrementerCouleur(self, numPlateau) :
-        if (numPlateau==1) :
-            self.couleur1+=1
-        else :
-            self.couleur2+=1
+def remplissageEchequierCouleur(i, echequier) : #i 1=blanc, -1=noir
+    u=7
+    if (i==1) :
+        u=0
+    echequier[u][0]= 4*i
+    echequier[u][7]=4*i
+    echequier[u][1]=2*i
+    echequier[u][6]=2*i
+    echequier[u][2]=3*i
+    echequier[u][5]=3*i
+    echequier[u][3]=5*i
+    echequier[u][4]=6*i
 
-    def getCouleur(self, numPlateau) :
-        if numPlateau==1 :
-            self.couleur1=self.couleur1%2
-            return self.couleur1
-        else :
-            self.couleur2= self.couleur2%2
-            return self.couleur2
 
-    def valeurPresente(self, numPlateau, val) :
-        liste =self.quelleListe(numPlateau)
-        taille =len(liste) 
-        for i in range (taille) :
-            if (liste[i]==val) :
-                return True
-        return False
+def remplissagePionCouleur(i, echequier) :
+    u=6
+    if (i==1) :
+        u=1
+    for p in range(8) :
+        echequier[u][p]=1*i
 
-    def validerAjoutPiece(self, reserveNum, numPlateau, valeur, i, j) :
-        # reserveNum : la réserve d'où vient la pièce (listestockagePlateauX)
-        # numPlateau : le plateau sur lequel on veut la poser
-        return self.valeurPresente(reserveNum, valeur) and self.caseLibrePlateau(numPlateau, i, j) and self.ajoutPionDansLesLimites(i, j)
+def remplissageDeTab(echequier) :
+    remplissageEchequierCouleur(1, echequier)
+    remplissageEchequierCouleur(-1, echequier)
+    remplissagePionCouleur(1, echequier)
+    remplissagePionCouleur(-1, echequier)
+    return echequier
 
-    def retirerDeReserve(self, reserveNum, index) :
-        liste = self.quelleListe(reserveNum)
-        if 0 <= index < len(liste) :
-            return liste.pop(index)
-        return None
+def remplissage() :
+    return remplissageDeTab(creationTableau(8,8))
 
-    def ajoutPionDansLesLimites(self, i, j) :
-        return (0<=j<8 and 0<i<7)
+def remplissageInverse() :
+    tab = remplissageDeTab(creationTableau(8,8))
+    return inversion(tab)
+
+def inversion(tab) :
+    for i in range (8) :
+        for j in range (8) :
+            tab[i][j]= (-1)*tab[i][j]
+    return tab
+
+def creationTableau(ligne, colonne ) :
+    echequier = []
+    for i in range(ligne):
+        rangee =[0]*colonne
+        echequier.append(rangee)
+    return echequier
+
+
+def affichageTableau(echequier) :
+    print(echequier)
+
+# def main() :
+#     tab =creationTableau(8,8)
+#     remplissage(tab)
+#     affichageTableau(tab)
+
+# if __name__ == "__main__":
+#     main()
