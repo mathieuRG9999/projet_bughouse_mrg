@@ -5,7 +5,7 @@ class bughouse:
 
     def __init__(self):
         self.plateau1 = plateau.remplissage()
-        self.plateau2 = plateau.remplissageInverse()
+        self.plateau2 = plateau.remplissage()
         self.listestockagePlateau1 = []
         self.listestockagePlateau2 = []
         self.couleur1 = 0

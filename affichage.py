@@ -19,13 +19,17 @@ COULEUR_SELECTION   = "#F6F669"
 #  EMOJI DES PIÈCES
 # ─────────────────────────────────────────────
 def emoticoneVal(val):
+    # Lettres de notation françaises au lieu des symboles unicode ♙♞... :
+    # certains environnements Tk/Fedora n'ont aucune police capable d'afficher
+    # ces glyphes rares et retombent sur l'affichage littéral du code (\u2658).
+    # Les lettres classiques marchent avec n'importe quelle police, partout.
     correspondance = {
-         1: "♙",  -1: "♟",
-         2: "♘",  -2: "♞",
-         3: "♗",  -3: "♝",
-         4: "♖",  -4: "♜",
-         5: "♕",  -5: "♛",
-         6: "♔",  -6: "♚",
+         1: "P",  -1: "p",   # pion
+         2: "C",  -2: "c",   # cavalier
+         3: "F",  -3: "f",   # fou
+         4: "T",  -4: "t",   # tour
+         5: "D",  -5: "d",   # dame
+         6: "R",  -6: "r",   # roi
     }
     return correspondance.get(val, "")
 
@@ -58,9 +62,15 @@ def affichageTableau(canvas, tab):
             if val != 0:
                 x = j * TAILLE_CASE + TAILLE_CASE // 2
                 y = i * TAILLE_CASE + TAILLE_CASE // 2
-                couleur = COULEUR_PIECE_BLANC if val > 0 else COULEUR_PIECE_NOIR
+                rayon = TAILLE_CASE // 2 - 8
+                if val > 0:
+                    fond, contour, texte = "#FFFDE7", "#8A8A8A", "#111111"
+                else:
+                    fond, contour, texte = "#3A3A3A", "#000000", "#FFFDE7"
+                canvas.create_oval(x - rayon, y - rayon, x + rayon, y + rayon,
+                                   fill=fond, outline=contour, width=2)
                 canvas.create_text(x, y, text=emoticoneVal(val),
-                                   font=("Arial", 36), fill=couleur)
+                                   font=("DejaVu Sans", 28, "bold"), fill=texte)
 
 
 def redessinerPlateau(canvas, tab, selection=None):
@@ -87,7 +97,7 @@ def affichageReserve(canvas, reserve, index_selectionne=None):
         couleur = COULEUR_PIECE_BLANC if val > 0 else COULEUR_PIECE_NOIR
         canvas.create_oval(x - 22, y - 22, x + 22, y + 22, fill="#444444", outline="#888888")
         canvas.create_text(x, y, text=emoticoneVal(val),
-                           font=("Arial", 28), fill=couleur)
+                           font=("DejaVu Sans", 24, "bold"), fill=couleur)
         if index_selectionne == i:
             canvas.create_oval(x - 24, y - 24, x + 24, y + 24,
                                outline=COULEUR_SELECTION, width=3)
@@ -227,37 +237,3 @@ def affichageDouble(jeu, tab1, tab2, reserve1, reserve2):
     fenetre.mainloop()
 
 
-# ─────────────────────────────────────────────
-#  MODE SIMPLE (un seul plateau, debug — sans réserve/bughouse)
-# ─────────────────────────────────────────────
-def affichageComplet(tab):
-    fenetre = tk.Tk()
-    fenetre.title("Échecs")
-    canvas = tk.Canvas(fenetre, width=TAILLE_PLATEAU, height=TAILLE_PLATEAU, highlightthickness=0)
-    canvas.pack()
-    redessinerPlateau(canvas, tab)
-
-    etat = EtatJeu()
-    couleur = {"valeur": 0}
-
-    def clic(event):
-        col   = event.x // TAILLE_CASE
-        ligne = event.y // TAILLE_CASE
-        if not (0 <= ligne < 8 and 0 <= col < 8):
-            return
-        if etat.piece_plateau is None:
-            if tab[ligne][col] != 0:
-                etat.piece_plateau = (ligne, col)
-                redessinerPlateau(canvas, tab, selection=(ligne, col))
-            return
-        li, co = etat.piece_plateau
-        if (li, co) != (ligne, col):
-            cases_possibles = mv.mouvement(tab, li, co, couleur["valeur"])
-            if (ligne, col) in cases_possibles:
-                mv.recupererValeurSupp(tab, li, co, ligne, col)
-                couleur["valeur"] = (couleur["valeur"] + 1) % 2
-        etat.piece_plateau = None
-        redessinerPlateau(canvas, tab)
-
-    canvas.bind("<Button-1>", clic)
-    fenetre.mainloop()
