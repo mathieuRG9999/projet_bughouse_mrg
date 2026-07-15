@@ -211,6 +211,18 @@ def mouvement(tab, i, j, couleur) :
     print("ce n'est pas à votre tour")
     return []
 
+def mouvementEnsembleEchequierPourUneCouleur(tab, couleur) : #permet d'avoir l'ensemble des coups (case dep->case z)
+    liste= []
+    for i in range (8):
+        for j in range (8):
+            if (tab[i][j]!=0 and couleurBlanche(tab, i, j, couleur)) :
+                depart=(i, j)
+                destination=mouvement(tab, i, j, couleur)
+
+                for dest in destination :
+                    liste.append((depart, dest))
+    return liste
+
 def mouvementLegal(tab, i, j) :
     return not (verifLimitHauteur(tab, i) or verifLimitLargeur(tab, i, j))
 

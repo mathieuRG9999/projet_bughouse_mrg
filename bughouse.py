@@ -85,3 +85,27 @@ class bughouse:
 
     def ajoutPionDansLesLimites(self, i, j) :
         return (0<=j<8 and 0<i<7)
+
+#on va maintenant récuperer l'ensemble des coups possibles
+
+    def listeCoupClassique(self, numPlateau) :
+        tab=self.quellePlateau(numPlateau)
+        return mouvement.mouvementEnsembleEchequierPourUneCouleur(tab,self.getCouleur(numPlateau))
+
+    def listePose(self, numPlateau) :
+        listeFinale= []
+        tab=self.quellePlateau(numPlateau)
+        couleur=self.getCouleur(numPlateau)
+        liste=self.quelleListe(numPlateau)
+        for i1 in liste :
+            for (i, j) in mouvement.listeCaseLibre(tab) :
+                if (self.validerAjoutPiece(liste, numPlateau, i1, i, j)) :
+                    depart= (-1, i)
+                    arrivee= (i, j)
+                    listeFinale.append(depart, arrivee)
+        return listeFinale
+            
+    def getAllMouvement(self, numPlateau) :
+        liste=self.listeCoupClassique(numPlateau)
+        liste.append(listePose(numPlateau))
+        return liste
