@@ -83,18 +83,10 @@ def affichageTableau(echequier) :
 def finDeMatch(echequier, couleur) :
     for i in range (8) :
         for j in range (8) :
-            if (tab[i][j]==6*couleur) :
-                return false
+            if (echequier[i][j]==6*couleur) :
+                return False
     if (couleur==1) :
         print("Les noirs ont gagnés, felicitations !")
     else :
         print("Les blancs ont gagnés, felicitations")
-    return true
-
-# def main() :
-#     tab =creationTableau(8,8)
-#     remplissage(tab)
-#     affichageTableau(tab)
-
-# if __name__ == "__main__":
-#     main()
+    return True

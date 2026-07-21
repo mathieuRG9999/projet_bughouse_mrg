@@ -177,6 +177,10 @@ def clicPlateau(etat, jeu, numPlateau, reserveNum, event, canvas, reserve_canvas
                     liste_reserve.append(valeurMangee)
                     affichageReserve(canvas_reserve_capture, liste_reserve)
                 jeu.incrementerCouleur(numPlateau)
+
+                #on veut voir quelle coup il nous propose
+                jeu.joueAleatoire(numPlateau)
+
         etat.piece_plateau = None
         etat.source_active = None
         redessinerPlateau(canvas, tab)
@@ -242,6 +246,11 @@ def affichageDouble(jeu, tab1, tab2, reserve1, reserve2):
         lambda e: clicPlateau(etat2, jeu, 2, 1, e, canvas2, reserve_canvas1, reserve_canvas2))
     reserve_canvas1.bind("<Button-1>",
         lambda e: clicReserve(etat2, reserve1, reserve_canvas1, e))
+
+    print("\n--- Coup de départ Plateau 1 ---")
+    jeu.joueAleatoire(1)
+    print("\n--- Coup de départ Plateau 2 ---")
+    jeu.joueAleatoire(2)
 
     fenetre.mainloop()
 

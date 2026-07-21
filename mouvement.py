@@ -10,12 +10,12 @@ def verifLimitHauteur(tab, i) :
     return not (i<0 or i>= len(tab)) 
 
 def verifLimitLargeur(tab, i, j) :
-    return not (i<0 or j>= len(tab[i])) 
+    return not (j<0 or j>= len(tab[i])) 
 
 def signe(val) :
     return abs(val)//val
 
-#on fera après le en passant
+#on fera après le en passant, le coup du rock et le timer
 
 def PionMange(tab, i,j) :
     liste =[]
@@ -30,7 +30,6 @@ def PionMange(tab, i,j) :
         liste.append((i, j2))
     return liste
 
-
 def mouvementPion(tab, i, j) :
     liste= PionMange(tab, i, j)
     val =tab[i][j]
@@ -42,7 +41,7 @@ def mouvementPion(tab, i, j) :
                 if (verifLimitHauteur(tab, i+2*direction) and tab[i+direction*2][j]==0) :
                     liste.append((i+2*direction, j))
         else  :
-            if (verifLimitHauteur(tab, i+direction)) :
+            if (verifLimitHauteur(tab, i+direction) and tab[i+1][j]==0) :
                 liste.append((i+direction, j))
     return liste
 
@@ -70,44 +69,42 @@ def letter_to_troops(reponse) :
         return 2
     return 0
 
-def mouvementFou(i, j) :
-    caseDispo= []
-    for p in range(8) :
-        caseDispo.append((i+p, j+p)) 
-        caseDispo.append((i+p, j-p))
-        caseDispo.append((i-p, j+p))
-        caseDispo.append((i-p, j-p))
+def mouvementFou(tab, i, j) :
+    caseDispo = []
+    directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)] # Les 4 diagonales
+    
+    for dx, dy in directions:
+        x, y = i + dx, j + dy
+        # Tant qu'on reste sur le plateau
+        while limiteEchequier(x, y):
+            caseDispo.append((x, y))
+            # Si on croise une pièce (qu'elle soit à 0 ou non), on s'arrête
+            if tab[x][y] != 0: 
+                break
+            # Sinon, on continue d'avancer d'une case dans la même direction
+            x += dx
+            y += dy
+            
     return caseDispo
 
-def conditionAjoutMvtTour(verif, i, j, liste) :
-    if (verif) :
-        liste.append((i, j))
-
-def mouvementTour(tab, i, j, couleur) :
-    caseDispo= []
-    coord =[]
-    precedent =[True, True, True, True]
-    for p in range(8) :
-        i1=i+p
-        i2=i-p
-        j1=j-p
-        j2=j+p
-        coord=[(i1, j), (i2, j), (i, j1), (i, j2)]
-
-        for u in range (4) :
-            x,y = coord[u]
-            verif =limiteEchequier(x, y)
-            precedent[u]=(verif and caseEstOccupe(tab,x, y, couleur )) and precedent[u]
-            if (verif and tab[x][y]!=0) :
-                precedent[u]= False
-            conditionAjoutMvtTour(precedent[u], x, y, caseDispo)
-    return caseDispo  
-
-def mouvementReine(tab, i, j, couleur) :
-    caseDispo= []
-    caseDispo= mouvementFou(i, j)
-    caseDispo+= (mouvementTour(tab, i , j, couleur))
+def mouvementTour(tab, i, j) :
+    caseDispo = []
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)] # Les 4 lignes droites
+    
+    for dx, dy in directions:
+        x, y = i + dx, j + dy
+        while limiteEchequier(x, y):
+            caseDispo.append((x, y))
+            if tab[x][y] != 0: 
+                break
+            x += dx
+            y += dy
+            
     return caseDispo
+
+def mouvementReine(tab, i, j) :
+    # La reine combine simplement les mouvements du Fou et de la Tour
+    return mouvementFou(tab, i, j) + mouvementTour(tab, i, j)
 
 def mouvementRoi(i, j) :
     liste= []
@@ -147,11 +144,11 @@ def mouvementPossibleEchequierVide(tab, i, j, couleur) :
     if (valeur==2) : #cas ou on a un cheval
         return mouvementCheval(i, j)
     if (valeur==3) :#cas fou
-        return mouvementFou(i, j)
+        return mouvementFou(tab, i, j)  # <-- Ajout de 'tab' ici
     if (valeur==4) : #cas tour
-        return mouvementTour(tab, i, j, couleur)
+        return mouvementTour(tab, i, j) # <-- Plus besoin de 'couleur', juste 'tab'
     if (valeur==5) : #cas reine
-        return mouvementReine(tab, i, j, couleur)
+        return mouvementReine(tab, i, j) # <-- Ajout de 'tab' ici
     if (valeur==6) : #cas roi
         return mouvementRoi(i, j)
     return caseDispo
@@ -169,7 +166,6 @@ def caseEstOccupe(tab, i, j, couleur) : #maintenant on regarde si on peut manger
     if (couleur==1 and tab[i][j]<0) :
         return True
     return False
-
 
 def mangerTroupeAdverse(tab, i, j, couleur) :
     return (caseEstOccupe(tab, i, j, couleur) and tab[i][j]!=0)
@@ -206,7 +202,7 @@ def mouvement(tab, i, j, couleur) :
         print("le match est fini, un roi est mort, il n'est plus possible de jouer")
         return
     if (couleurBlanche(tab, i, j, couleur)) :
-        print("la couleur actuelle est ", couleur)
+        #print("la couleur actuelle est ", couleur)
         case =mouvementPossibleEchequierVide(tab, i, j, couleur)
         case =mouvementDansLesLimites(case, tab)
         return mouvementLogique(tab, case, couleur)
@@ -237,15 +233,23 @@ def listeCaseLibre(tab) :
                 liste.append((i,j))
     return liste
 
-
 def valeurMouvement(tab, i, j, i1, j1) : #pour l'instant, on suppose que les pièces valent strictement la même chose
     #je pense qu'elles ont un poids évolutif en fonction de l'avancement de la partie, mais à vérifier
     signePieceInitial =signe(tab[i][j])
     signePieceFinale =signe(tab[i1][j1])
     if (signePieceFinale==signePieceInitial) :
         print("il y a un soucis, on peut aller sur une piece a nous")
-        break
+        return 0
     return tab[i1][j1]
+
+def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : #on suppose qu'uniquement des coups légaux sont données
+    valeur =tab[i2][j2]
+    tab[i2][j2]=tab[i1][j1]
+    tab[i1][j1]=0
+    return valeur
+
+def poserSurPlateau(tab, i, j, val) :
+    tab[i][j]=val
 
 def mouvement_to_string(coup) :
     depart, arrivee = coup

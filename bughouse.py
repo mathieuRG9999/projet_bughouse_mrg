@@ -1,5 +1,6 @@
 import mouvement
 import plateau
+import random 
 
 class bughouse:
 
@@ -49,6 +50,12 @@ class bughouse:
     def getListe(self, numPlateau) :
         p=self.quelleListe(numPlateau)
         return p
+    
+    def ajoutListe(self, numPlateau, valeur) :
+        self.quelleListe(numPlateau).append(valeur)
+    
+    def removeListe(self, numPlateau, valeur) :
+        self.quelleListe(numPlateau).remove(valeur)
     
     def incrementerCouleur(self, numPlateau) :
         if (numPlateau==1) :
@@ -116,5 +123,26 @@ class bughouse:
     def joueAleatoire(self, numPlateau) :
         listeCoups = self.getAllMouvement(numPlateau)
         coup_aleatoire =random.choice(listeCoups)
-        print("le coup aleatoire est", coup_aleatoire)
+        print("le coup aléatoire est \n")
+        mouvement.mouvement_to_string(coup_aleatoire)
+        print("pour le plateau ", numPlateau)
         return coup_aleatoire
+
+    def appliquerCoup(self, numPlateau, coup) :
+        arrivee, final = coup
+        i1, j1=arrivee
+        i2, j2= final
+        if (i1==-1) : #cas ou on doit récuperer une valeur
+            self.removeListe(j1)
+            mouvement.poserSurPlateau(self.quellePlateau(numPlateau), i2, j2)
+        else :
+            valeur=mouvement.appliquer_mouvement_classique(self.quellePlateau(numPlateau), i1, j1, i2, j2)
+            if (valeur==0):
+                return
+            self.ajoutListe(numPlateau, valeur)
+        
+    def appliquerCoupAleatoire(self, numPlateau) :
+        coup=self.joueAleatoire(numPlateau)
+        self.appliquerCoup(numPlateau, coup)
+
+        
