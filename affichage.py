@@ -201,11 +201,12 @@ def clicReserve(etat, reserve, canvas_reserve, event):
 # ─────────────────────────────────────────────
 #  FENÊTRE PRINCIPALE (mode bughouse double plateau)
 # ─────────────────────────────────────────────
-def affichageDouble(jeu, tab1, tab2, reserve1, reserve2):
+def affichageDouble(jeu, tab1, tab2, reserve1, reserve2, mode_simulation=False):
     """
     Affiche deux échiquiers côte à côte avec leurs réserves respectives.
     - reserve1 : pièces capturées par l'équipe du plateau 1 (disponibles sur plateau 2)
     - reserve2 : pièces capturées par l'équipe du plateau 2 (disponibles sur plateau 1)
+    - mode_simulation : si True, l'IA joue toute seule sur les deux plateaux
     """
     fenetre = tk.Tk()
     fenetre.title("Bughouse Chess")
@@ -247,13 +248,36 @@ def affichageDouble(jeu, tab1, tab2, reserve1, reserve2):
     reserve_canvas1.bind("<Button-1>",
         lambda e: clicReserve(etat2, reserve1, reserve_canvas1, e))
 
-    print("\n--- Coup de départ Plateau 1 ---")
-    jeu.joueAleatoire(1)
-    print("\n--- Coup de départ Plateau 2 ---")
-    jeu.joueAleatoire(2)
+    # ── BOUCLE DE SIMULATION IA vs IA ──
+    if mode_simulation:
+        tour = {"actuel": 1} # Dictionnaire pour pouvoir modifier la valeur dans la fonction imbriquée
 
+        def boucle_ia():
+            print(f"\n--- C'est au Plateau {tour['actuel']} de jouer ---")
+            
+            # 1. L'IA joue son coup
+            jeu.appliquerCoupAleatoire(tour['actuel'])
+            
+            # 2. On passe le tour
+            jeu.incrementerCouleur(tour['actuel'])
+            
+            # 3. On met à jour l'affichage de toute la fenêtre
+            redessinerPlateau(canvas1, tab1)
+            redessinerPlateau(canvas2, tab2)
+            affichageReserve(reserve_canvas1, jeu.quelleListe(1))
+            affichageReserve(reserve_canvas2, jeu.quelleListe(2))
+            
+            # 4. On alterne le plateau (1 -> 2 -> 1 -> 2...)
+            tour['actuel'] = 2 if tour['actuel'] == 1 else 1
+            
+            # 5. On relance cette même fonction dans 800 millisecondes
+            fenetre.after(800, boucle_ia)
+
+        # On déclenche le premier coup 1 seconde (1000 ms) après l'ouverture de la fenêtre
+        fenetre.after(1000, boucle_ia)
+
+    # Lancement de la fenêtre
     fenetre.mainloop()
-
 
 # ─────────────────────────────────────────────
 #  MODE SIMPLE (un seul plateau, debug — sans réserve/bughouse)

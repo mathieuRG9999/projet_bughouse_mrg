@@ -27,6 +27,14 @@ class bughouse:
             p=self.listestockagePlateau2
         return p
 
+    def quelleListeAUtiliser(self, numPlateau) :
+        p=[]
+        if (numPlateau==1) :
+            p=self.listestockagePlateau2
+        if (numPlateau==2) :
+            p=self.listestockagePlateau1
+        return p
+
     def quellePlateau(self, numPlateau) :
         p=[]
         if (numPlateau==1) :
@@ -52,10 +60,10 @@ class bughouse:
         return p
     
     def ajoutListe(self, numPlateau, valeur) :
-        self.quelleListe(numPlateau).append(valeur)
+        self.quelleListeAUtiliser(numPlateau).append(valeur)
     
     def removeListe(self, numPlateau, valeur) :
-        self.quelleListe(numPlateau).remove(valeur)
+        self.quelleListeAUtiliser(numPlateau).remove(valeur)
     
     def incrementerCouleur(self, numPlateau) :
         if (numPlateau==1) :
@@ -108,7 +116,7 @@ class bughouse:
         for i1 in set(liste) : #pour ne pas regarder plusieurs fois la même pièce
             for (i, j) in mouvement.listeCaseLibre(tab) :
                 if (self.validerAjoutPiece(reserveNum, numPlateau, i1, i, j)) :
-                    depart= (-1, i) #on met -1 pour rester sur des nombres et se diff des autres 
+                    depart= (-1, i1) #on met -1 pour rester sur des nombres et se diff des autres 
                     arrivee= (i, j)
                     listeFinale.append((depart, arrivee))
         return listeFinale
@@ -133,13 +141,14 @@ class bughouse:
         i1, j1=arrivee
         i2, j2= final
         if (i1==-1) : #cas ou on doit récuperer une valeur
-            self.removeListe(j1)
-            mouvement.poserSurPlateau(self.quellePlateau(numPlateau), i2, j2)
+            valeur=j1
+            self.removeListe(numPlateau, valeur)
+            mouvement.poserSurPlateau(self.quellePlateau(numPlateau), i2, j2, valeur)
         else :
             valeur=mouvement.appliquer_mouvement_classique(self.quellePlateau(numPlateau), i1, j1, i2, j2)
             if (valeur==0):
                 return
-            self.ajoutListe(numPlateau, valeur)
+            self.ajoutListe(numPlateau, -valeur) #on inverse le signe de la pièce capturer
         
     def appliquerCoupAleatoire(self, numPlateau) :
         coup=self.joueAleatoire(numPlateau)
