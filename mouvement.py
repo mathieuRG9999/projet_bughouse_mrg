@@ -236,3 +236,24 @@ def listeCaseLibre(tab) :
             if (tab[i][j]==0) :
                 liste.append((i,j))
     return liste
+
+
+def valeurMouvement(tab, i, j, i1, j1) : #pour l'instant, on suppose que les pièces valent strictement la même chose
+    #je pense qu'elles ont un poids évolutif en fonction de l'avancement de la partie, mais à vérifier
+    signePieceInitial =signe(tab[i][j])
+    signePieceFinale =signe(tab[i1][j1])
+    if (signePieceFinale==signePieceInitial) :
+        print("il y a un soucis, on peut aller sur une piece a nous")
+        break
+    return tab[i1][j1]
+
+def mouvement_to_string(coup) :
+    depart, arrivee = coup
+    i1, j1 =depart
+    i2, j2 = arrivee
+    if (i1==-1) : #on est dans le cas ou on pose qqch
+        piece = plateau.affichage_piece(j1)
+        print("on place un ", piece, " en (", i2,", ", j2, ")")
+    else :
+        print("(",i1, ", ", j1, ")", "-> (", i2,",", j2,")")
+    

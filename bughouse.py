@@ -110,3 +110,11 @@ class bughouse:
         liste=self.listeCoupClassique(numPlateau)
         liste.extend(self.listePose(numPlateau)) # MODIFICATION : Ajout de 'self.' et utilisation de '.extend()' au lieu de '.append()'
         return liste
+
+    #################################################################################################################################################################################################################################################################################
+
+    def joueAleatoire(self, numPlateau) :
+        listeCoups = self.getAllMouvement(numPlateau)
+        coup_aleatoire =random.choice(listeCoups)
+        print("le coup aleatoire est", coup_aleatoire)
+        return coup_aleatoire

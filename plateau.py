@@ -14,7 +14,20 @@
 #valeur négatives pour les noirs
 
 
-    
+def affichage_piece(val) :
+    valeur =abs(val)
+    if (valeur==1) :
+        return "pion"
+    if (valeur==2) :
+        return "cheval"
+    if (valeur==3) :
+        return "fou"
+    if (valeur==4) :
+        return "tour"
+    if (valeur==5) :
+        return "reine"
+    if (valeur==6) :
+        return "roi"
 
 def remplissageEchequierCouleur(i, echequier) : #i 1=blanc, -1=noir
     u=7
@@ -64,10 +77,8 @@ def creationTableau(ligne, colonne ) :
         echequier.append(rangee)
     return echequier
 
-
 def affichageTableau(echequier) :
     print(echequier)
-
 
 def finDeMatch(echequier, couleur) :
     for i in range (8) :
