@@ -14,6 +14,8 @@ def verifLimitLargeur(tab, i, j) :
     return not (j<0 or j>= len(tab[i])) 
 
 def signe(val) :
+    if (val==0) :
+        return 0
     return abs(val)//val
 
 #on fera après le en passant, le coup du rock et le timer
@@ -242,7 +244,6 @@ def valeurMouvement(tab, i, j, i1, j1) : #pour l'instant, on suppose que les pi�
     #je pense qu'elles ont un poids évolutif en fonction de l'avancement de la partie, mais à vérifier
     if (i==-1) :
         return heuristiquePoserTroupe(tab, j, i1, j1)
-
     signePieceInitial =signe(tab[i][j])
     signePieceFinale =signe(tab[i1][j1])
     if (abs(tab[i1][j1])==6) : #cas ou on peut manger le roi

@@ -139,6 +139,7 @@ class bughouse:
 
     def joueMieuxQuAleatoire(self, numPlateau) :
         listeCoups = self.getAllMouvement(numPlateau)
+        tab=self.quellePlateau(numPlateau)
         listeCoups.sort(
             key=lambda coup: mouvement.valeurMouvement(tab, coup[0][0], coup[0][1], coup[1][0], coup[1][1]), 
             reverse=True
