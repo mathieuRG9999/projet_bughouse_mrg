@@ -130,12 +130,22 @@ class bughouse:
 
     def joueAleatoire(self, numPlateau) :
         listeCoups = self.getAllMouvement(numPlateau)
+        tab=self.quellePlateau(numPlateau)
         coup_aleatoire =random.choice(listeCoups)
         print("le coup aléatoire est \n")
-        mouvement.mouvement_to_string(coup_aleatoire)
+        mouvement.mouvement_to_string(tab, coup_aleatoire )
         print("pour le plateau ", numPlateau)
         return coup_aleatoire
 
+    def joueMieuxQuAleatoire(self, numPlateau) :
+        listeCoups = self.getAllMouvement(numPlateau)
+        listeCoups.sort(
+            key=lambda coup: mouvement.valeurMouvement(tab, coup[0][0], coup[0][1], coup[1][0], coup[1][1]), 
+            reverse=True
+        )
+        return listeCoups
+
+        
     def appliquerCoup(self, numPlateau, coup) :
         arrivee, final = coup
         i1, j1=arrivee
@@ -151,7 +161,7 @@ class bughouse:
             self.ajoutListe(numPlateau, -valeur) #on inverse le signe de la pièce capturer
         
     def appliquerCoupAleatoire(self, numPlateau) :
-        coup=self.joueAleatoire(numPlateau)
+        coup=self.joueMieuxQuAleatoire(numPlateau)
         self.appliquerCoup(numPlateau, coup)
 
         

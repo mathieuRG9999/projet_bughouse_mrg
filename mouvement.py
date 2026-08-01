@@ -1,4 +1,5 @@
 import plateau
+import math
 #on doit faire en sorte de pourvoir bouger de plusieurs manière avec la ligne de commande
 
 #la premiere maniere c'est en disant uniquement ou on veut aller, on regarde les différents moyens et on au hasard
@@ -57,6 +58,10 @@ def promotionPion(tab, i, j) :
         changement(tab, i, j, letter_to_troops(reponse), direction)
         reponse = letter_to_troops(reponse)
     print("vous avez fait la promotion d'un pion")
+
+def promotion(tab, i, j, val) : #a verifier si c'est correct
+    changement(tab, i, j, val, direction)
+
 
 def letter_to_troops(reponse) :
     if (reponse == "R") :
@@ -235,12 +240,24 @@ def listeCaseLibre(tab) :
 
 def valeurMouvement(tab, i, j, i1, j1) : #pour l'instant, on suppose que les pièces valent strictement la même chose
     #je pense qu'elles ont un poids évolutif en fonction de l'avancement de la partie, mais à vérifier
+    if (i==-1) :
+        return heuristiquePoserTroupe(tab, j, i1, j1)
+
     signePieceInitial =signe(tab[i][j])
     signePieceFinale =signe(tab[i1][j1])
-    if (signePieceFinale==signePieceInitial) :
-        print("il y a un soucis, on peut aller sur une piece a nous")
-        return 0
-    return tab[i1][j1]
+    if (abs(tab[i1][j1])==6) : #cas ou on peut manger le roi
+        return math.sup
+    return min(abs(tab[i1][j1]), mauvaisMouvementValeur(tab, i, j, i1, j1))
+
+def heuristiquePoserTroupe(tab, valeur, x, y) :
+    return valeur*1.5 #on fera quelque chose d'un peu plus détaillé par la suite
+
+def mauvaisMouvementValeur(tab, i, j, i1, j1) :
+    if (abs(tab[i][j])==1) :
+        if ((i==1) or (i==6) and j==5) :
+            return -10 # c'est une valeur arbitraire pour le moment, pour pas qu'il ne le fasse
+    return 0
+
 
 def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : #on suppose qu'uniquement des coups légaux sont données
     valeur =tab[i2][j2]
@@ -251,7 +268,7 @@ def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : #on suppose qu'uniqueme
 def poserSurPlateau(tab, i, j, val) :
     tab[i][j]=val
 
-def mouvement_to_string(coup) :
+def mouvement_to_string(tab, coup) :
     depart, arrivee = coup
     i1, j1 =depart
     i2, j2 = arrivee
@@ -260,4 +277,5 @@ def mouvement_to_string(coup) :
         print("on place un ", piece, " en (", i2,", ", j2, ")")
     else :
         print("(",i1, ", ", j1, ")", "-> (", i2,",", j2,")")
+    print(", valeur =", valeurMouvement(tab, i1, j1, i2, j2))
     
