@@ -162,7 +162,17 @@ class bughouse:
             self.ajoutListe(numPlateau, -valeur) #on inverse le signe de la pièce capturer
         
     def appliquerCoupAleatoire(self, numPlateau) :
-        coup=self.joueMieuxQuAleatoire(numPlateau)
-        self.appliquerCoup(numPlateau, coup)
+        # On récupère la liste complète des coups triés
+        liste_coups = self.joueMieuxQuAleatoire(numPlateau)
+        
+        # On s'assure qu'il y a au moins un coup possible
+        if liste_coups:
+            # On sélectionne le coup que l'on veut garder (ici, le meilleur qui est à l'indice 0)
+            coup_a_jouer = liste_coups[0]
+            
+            # On applique uniquement ce coup
+            self.appliquerCoup(numPlateau, coup_a_jouer)
+        else:
+            print(f"Aucun coup possible pour le plateau {numPlateau}")
 
         

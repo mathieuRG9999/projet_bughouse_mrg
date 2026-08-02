@@ -33,14 +33,15 @@ def remplissageEchequierCouleur(i, echequier) : #i 1=blanc, -1=noir
     u=7
     if (i==1) :
         u=0
-    echequier[u][0]= 4*i
-    echequier[u][7]=4*i
-    echequier[u][1]=2*i
-    echequier[u][6]=2*i
-    echequier[u][2]=3*i
-    echequier[u][5]=3*i
-    echequier[u][3]=5*i
-    echequier[u][4]=6*i
+    remplissageEchequierCouleurFactorisation(echequier, u, 0, 4*i)
+    remplissageEchequierCouleurFactorisation(echequier, u, 1, 2*i)
+    remplissageEchequierCouleurFactorisation(echequier, u, 2, 3*i)
+    echequier[u][3] = 5*i
+    echequier[u][4] = 6*i
+
+def remplissageEchequierCouleurFactorisation(tab, i, j, val) :
+    tab[i][j]=val
+    tab[i][7-j]=val
 
 
 def remplissagePionCouleur(i, echequier) :
