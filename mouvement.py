@@ -127,7 +127,19 @@ def casRoqueVerif(tab, i, j, positionIBoucle, positionFBoucle, indice) :
             return False
     return True
 
+def ajoutMouvementRoque(tab, i, j) :
+    liste= []
+    indice=1
+    if (tab[i][j]>0) :
+        indice=0
+    if ((not tabBoolRoi[indice])) :
+        if ((not tabBoolTour[indice*2]) and casRoqueVerif(tab, i, j,1, 4, indice)) :
+            liste.append((i, j-2))
+        if ((not tabBoolTour[indice*2+1]) and casRoqueVerif(tab, i, j,5, 7, indice)) :
+            liste.append((i, j+2))
+    return liste
 
+            
 
 
 
@@ -175,7 +187,9 @@ def mouvementPossibleEchequierVide(tab, i, j, couleur) :
     if (valeur==5) : #cas reine
         return mouvementReine(tab, i, j) # <-- Ajout de 'tab' ici
     if (valeur==6) : #cas roi
-        return mouvementRoi(tab, i, j)
+        liste=mouvementRoi(tab, i, j)
+        liste.extend(ajoutMouvementRoque(tab, i, j))
+        return liste
     return caseDispo
 
 def mouvementDansLesLimites(listeXY, tab) : #cette méthode pourra être optimiser afin de limiter les cases regarder, mais est ce que ca change vraiment qqch ?
@@ -278,8 +292,20 @@ def mauvaisMouvementValeur(tab, i, j, i1, j1) :
             return -10 # c'est une valeur arbitraire pour le moment, pour pas qu'il ne le fasse
     return 0
 
+def forcer_mouv_tour_cas_roque(tab, i2, j2) :
+    indice=1
+    if (i2==-1) :
+        indice=1
+    if (j2==2) :
+        tab[i2][3]=4*indice
+        tab[i2][0]=0
+    if (i2==0 and j2==6) :
+        tab[i2][5]=4*indice
+        tab[i2][7]=0
 
 def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : #on suppose qu'uniquement des coups légaux sont données
+    if (abs(tab[i1][j1])==6 and abs(j1-j2)==2) : # on est dans le cas d'un roque
+        forcer_mouv_tour_cas_roque(tab, i2, j2)
     enleverRoque(tab, i1, j1)
     valeur =tab[i2][j2]
     tab[i2][j2]=tab[i1][j1]
