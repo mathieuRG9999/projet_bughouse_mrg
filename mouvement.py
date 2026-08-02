@@ -7,6 +7,12 @@ import math
 
 # couleur =0
 
+tabBoolRoi= [false, false]
+tabBoolTour=[false, false, false, false] #  TB1, TB2, TN1, TN2
+
+
+
+
 def verifLimitHauteur(tab, i) :
     return not (i<0 or i>= len(tab)) 
 
@@ -180,11 +186,11 @@ def mangerTroupeAdverse(tab, i, j, couleur) :
 def valeurMange(tab, i, j) :
     return tab[i][j]
 
-def recupererValeurSupp(tab, xInitial, yInitial, xFutur, yFutur) :
-    ancienneValeur=tab[xFutur][yFutur]
-    tab[xFutur][yFutur] = tab[xInitial][yInitial]
-    tab[xInitial][yInitial] = 0
-    return ancienneValeur #elle est à 0 s'il n'y avait rien
+# def recupererValeurSupp(tab, xInitial, yInitial, xFutur, yFutur) :
+#     ancienneValeur=tab[xFutur][yFutur]
+#     tab[xFutur][yFutur] = tab[xInitial][yInitial]
+#     tab[xInitial][yInitial] = 0
+#     return ancienneValeur #elle est à 0 s'il n'y avait rien
 
 def deposerPiece(tab, val, x, y) :
     tab[x][y]=val
@@ -262,10 +268,52 @@ def mauvaisMouvementValeur(tab, i, j, i1, j1) :
 
 
 def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : #on suppose qu'uniquement des coups légaux sont données
+    enleverRoque(tab, i1, j1)
     valeur =tab[i2][j2]
     tab[i2][j2]=tab[i1][j1]
     tab[i1][j1]=0
     return valeur
+
+
+def casStupideRoqueFactorisation(c1, c2) :
+    if (c1 and c2) :
+        tabBoolRoi[0]=True
+        return True
+    return False
+ 
+
+def casStupideRoque(tab, i, j) :
+    indice=0
+    if (tab[i][j]<0) :
+        indice=1
+    casStupideRoqueFactorisation(tabBoolTour[indice*2], tabBoolTour[indice*2+1])
+    return tabBoolRoi[indice]
+
+
+
+def enleverRoque(tab, i, j) :
+    if (casStupideRoque(tab, i, j)) :
+        return
+    enleverRoqueRoi(tab, i, j)
+    enleverRoqueTour(tab, i, j)
+
+def enleverRoqueTour(tab, i1, j1) :
+    #on verifie si l'une des tours a bouges
+    coordGenante= [(0,0), (0, 7), (7,0), (7, 7)]
+    for i in range (4) :
+        x, y = coordGenante[i]
+        if (i1==x and j1==y) :
+            tabBoolTour[i]==True
+
+def enleverRoqueRoi(tab, i, j) :
+    #on verifie si l'une des tours a bouges
+    coordGenante= [(0,4), (7, 4)]
+    for i in range (2) :
+        x, y = coordGenante[i]
+        if (i1==x and j1==y) :
+            tabBoolRoi[i]==True
+
+
 
 def poserSurPlateau(tab, i, j, val) :
     tab[i][j]=val

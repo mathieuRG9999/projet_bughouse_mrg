@@ -15,7 +15,7 @@ class bughouse:
     def remplirListe(self, xInitial, yInitial, xFutur, yFutur, numPlateau) :
         liste = self.quelleListe(numPlateau)
         tab = self.quellePlateau(numPlateau)
-        valeurMangee = mouvement.recupererValeurSupp(tab, xInitial, yInitial, xFutur, yFutur)
+        valeurMangee = mouvement.appliquer_mouvement_classique(tab, xInitial, yInitial, xFutur, yFutur)
         if (valeurMangee != 0) :
             liste.append(valeurMangee)
 
