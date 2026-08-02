@@ -118,7 +118,8 @@ class bughouse:
                 if (self.validerAjoutPiece(reserveNum, numPlateau, i1, i, j)) :
                     depart= (-1, i1) #on met -1 pour rester sur des nombres et se diff des autres 
                     arrivee= (i, j)
-                    listeFinale.append((depart, arrivee))
+                    pieceMangee=tab[i][j] # qui vaut 0
+                    listeFinale.append((depart, arrivee, pieceMangee))
         return listeFinale
             
     def getAllMouvement(self, numPlateau) :
@@ -148,7 +149,7 @@ class bughouse:
 
         
     def appliquerCoup(self, numPlateau, coup) :
-        arrivee, final = coup
+        arrivee, final, pieceMangee= coup
         i1, j1=arrivee
         i2, j2= final
         if (i1==-1) : #cas ou on doit récuperer une valeur
@@ -174,5 +175,73 @@ class bughouse:
             self.appliquerCoup(numPlateau, coup_a_jouer)
         else:
             print(f"Aucun coup possible pour le plateau {numPlateau}")
+
+
+
+## Ajout du premier moteur d'ia algorithmique
+
+    def trouverMeilleurCoupMinimax(self, numPlateau, profondeur):
+            meilleur_coup = None
+            max_eval = -float('inf')
+            alpha = -float('inf')
+            beta = float('inf')
+            
+            # On trie les coups pour optimiser l'élagage Alpha-Beta
+            coups_possibles = self.joueMieuxQuAleatoire(numPlateau) 
+            
+            for coup in coups_possibles:
+                # 1. On garde en mémoire ce qui a été modifié pour pouvoir annuler
+                etat_capture = self.appliquerCoup(numPlateau, coup)
+                
+                # 2. On évalue la branche (on passe False car c'est au tour de l'adversaire)
+                eval_coup = self.minimax(numPlateau, profondeur - 1, alpha, beta, False)
+                
+                # 3. On annule le coup pour revenir à l'état initial
+                self.annulerCoup(numPlateau, coup, etat_capture)
+                
+                if eval_coup > max_eval:
+                    max_eval = eval_coup
+                    meilleur_coup = coup
+                    
+            return meilleur_coup
+
+    def minimax(self, numPlateau, profondeur, alpha, beta, maximisant):
+            # Condition d'arrêt : profondeur atteinte ou fin de match
+            # (Il faudra que tu crées self.partie_terminee(numPlateau))
+            if profondeur == 0 or self.partie_terminee(numPlateau):
+                return self.evaluerPlateau(numPlateau) # Ta fonction d'heuristique !
+
+            coups_possibles = self.joueMieuxQuAleatoire(numPlateau)
+
+            if maximisant:
+                max_eval = -float('inf')
+                for coup in coups_possibles:
+                    etat_capture = self.appliquerCoup(numPlateau, coup)
+                    eval_actuelle = self.minimax(numPlateau, profondeur - 1, alpha, beta, False)
+                    self.annulerCoup(numPlateau, coup, etat_capture)
+                    
+                    max_eval = max(max_eval, eval_actuelle)
+                    alpha = max(alpha, eval_actuelle)
+                    if beta <= alpha:
+                        break # Élagage : on coupe cette branche
+                return max_eval
+                
+            else:
+                min_eval = float('inf')
+                for coup in coups_possibles:
+                    etat_capture = self.appliquerCoup(numPlateau, coup)
+                    eval_actuelle = self.minimax(numPlateau, profondeur - 1, alpha, beta, True)
+                    self.annulerCoup(numPlateau, coup, etat_capture)
+                    
+                    min_eval = min(min_eval, eval_actuelle)
+                    beta = min(beta, eval_actuelle)
+                    if beta <= alpha:
+                        break # Élagage
+                return min_eval
+
+    def evaluerPlateau(self, numPlateau):
+            # C'est ici que tu mets ton code.
+            # Retourne un float positif si tu gagnes, négatif si tu perds.
+            pass
 
         
