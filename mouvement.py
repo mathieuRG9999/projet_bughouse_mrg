@@ -226,7 +226,8 @@ def mouvementEnsembleEchequierPourUneCouleur(tab, couleur) : #permet d'avoir l'e
                 destination=mouvement(tab, i, j, couleur)
 
                 for dest in destination :
-                    liste.append((depart, dest))
+                    pieceMangee=tab[dest[0]][dest[1]]
+                    liste.append((depart, dest, pieceMangee))
     return liste
 
 def mouvementLegal(tab, i, j) :
@@ -270,12 +271,12 @@ def poserSurPlateau(tab, i, j, val) :
     tab[i][j]=val
 
 def mouvement_to_string(tab, coup) :
-    depart, arrivee = coup
+    depart, arrivee, pieceMangee = coup
     i1, j1 =depart
     i2, j2 = arrivee
     if (i1==-1) : #on est dans le cas ou on pose qqch
         piece = plateau.affichage_piece(j1)
-        print("on place un ", piece, " en (", i2,", ", j2, ")")
+        print("on place un ", piece, " en (", i2,", ", j2, ") et on a mangé un ", plateau.affichage_piece(pieceMangee))
     else :
         print("(",i1, ", ", j1, ")", "-> (", i2,",", j2,")")
     print(", valeur =", valeurMouvement(tab, i1, j1, i2, j2))
