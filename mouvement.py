@@ -7,8 +7,8 @@ import math
 
 # couleur =0
 
-tabBoolRoi= [false, false]
-tabBoolTour=[false, false, false, false] #  TB1, TB2, TN1, TN2
+tabBoolRoi= [False, False]
+tabBoolTour=[False, False, False, False] #  TB1, TB2, TN1, TN2
 
 
 
@@ -119,7 +119,19 @@ def mouvementReine(tab, i, j) :
     # La reine combine simplement les mouvements du Fou et de la Tour
     return mouvementFou(tab, i, j) + mouvementTour(tab, i, j)
 
-def mouvementRoi(i, j) :
+
+
+def casRoqueVerif(tab, i, j, positionIBoucle, positionFBoucle, indice) :
+    for u in range (positionIBoucle, positionFBoucle) :
+        if (tab[indice][u]!=0) :
+            return False
+    return True
+
+
+
+
+
+def mouvementRoi(tab, i, j) :
     liste= []
     for x in range (-1,2) :
         for y in range(-1, 2) :
@@ -163,7 +175,7 @@ def mouvementPossibleEchequierVide(tab, i, j, couleur) :
     if (valeur==5) : #cas reine
         return mouvementReine(tab, i, j) # <-- Ajout de 'tab' ici
     if (valeur==6) : #cas roi
-        return mouvementRoi(i, j)
+        return mouvementRoi(tab, i, j)
     return caseDispo
 
 def mouvementDansLesLimites(listeXY, tab) : #cette méthode pourra être optimiser afin de limiter les cases regarder, mais est ce que ca change vraiment qqch ?
@@ -275,9 +287,9 @@ def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : #on suppose qu'uniqueme
     return valeur
 
 
-def casStupideRoqueFactorisation(c1, c2) :
+def casStupideRoqueFactorisation(c1, c2, indice) :
     if (c1 and c2) :
-        tabBoolRoi[0]=True
+        tabBoolRoi[indice]=True
         return True
     return False
  
@@ -286,7 +298,7 @@ def casStupideRoque(tab, i, j) :
     indice=0
     if (tab[i][j]<0) :
         indice=1
-    casStupideRoqueFactorisation(tabBoolTour[indice*2], tabBoolTour[indice*2+1])
+    casStupideRoqueFactorisation(tabBoolTour[indice*2], tabBoolTour[indice*2+1], indice)
     return tabBoolRoi[indice]
 
 
@@ -303,15 +315,15 @@ def enleverRoqueTour(tab, i1, j1) :
     for i in range (4) :
         x, y = coordGenante[i]
         if (i1==x and j1==y) :
-            tabBoolTour[i]==True
+            tabBoolTour[i]=True
 
-def enleverRoqueRoi(tab, i, j) :
+def enleverRoqueRoi(tab, i1, j1) :
     #on verifie si l'une des tours a bouges
     coordGenante= [(0,4), (7, 4)]
     for i in range (2) :
         x, y = coordGenante[i]
         if (i1==x and j1==y) :
-            tabBoolRoi[i]==True
+            tabBoolRoi[i]=True
 
 
 
