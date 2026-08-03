@@ -244,4 +244,15 @@ class bughouse:
             # Retourne un float positif si tu gagnes, négatif si tu perds.
             pass
 
+
+
+    def annulerCoup(self, numPlateau, coup) : #on suppose que le coup a été appliqué et il faut l'annuler
+        tab=self.quellePlateau(numPlateau)
+        arrivee, depart, pieceMangee= coup
+        i1, j1 = arrivee
+        i2, j2 = depart
+        if (i1==-1) : #le cas ou on a posé une troupe avant, piece mange=0
+            annulerCoupPoser(tab, j1, i2, j2)
+        else :
+            annulerCoupClassique(tab, i1, j1, i2, j2)
         
