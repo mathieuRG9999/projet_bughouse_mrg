@@ -53,6 +53,7 @@ def mouvementPion(tab, i, j) :
         else  :
             if (verifLimitHauteur(tab, i+direction) and tab[i+1][j]==0) :
                 liste.append((i+direction, j))
+    liste.extend(rajoutEnPassant(tab, i, j))
     return liste
 
 def changement(tab, i, j, val, direction) :
@@ -131,26 +132,10 @@ def rajoutEnPassant(tab, i, j) :
 def rajoutEnPassantNeutre(tab, i, j, tabATester ,signe) :
     liste=[]
     if (tab[i+1*signe][j+1]==0 and tabATester[j+1]==True) :
-        liste.append((i+1, j+1))
+        liste.append((i+1*signe, j+1))
     if (tab[i+1*signe][j-1]==0 and tabATester[j-1]==True) :
-        liste.append((i+1,j-1))
+        liste.append((i+1*signe,j-1))
     return liste
-
-# def rajoutEnPassantBlanc(tab, i, j) :
-#     liste=[]
-#     if (tab[i+1][j+1]==0 and tabBoolPionB[j+1]==True) :
-#         liste.append((i+1, j+1))
-#     if (tab[i+1][j-1]==0 and tabBoolPionB[j+1]==True) :
-#         liste.append((i+1,j-1))
-#     return liste
-
-# def rajoutEnPassantBlanc(tab, i, j) :
-#     liste=[]
-#     if (tab[i-1][j+1]==0 and tabBoolPionN[j+1]==True) :
-#         liste.append((i+1, j+1))
-#     if (tab[i-1][j-1]==0 and tabBoolPionN[j+1]==True) :
-#         liste.append((i+1,j-1))
-#     return liste
 
 def casRoqueVerif(tab, i, j, positionIBoucle, positionFBoucle, indice) :
     for u in range (positionIBoucle, positionFBoucle) :
@@ -343,6 +328,7 @@ def activationEnPassant(tab, i, j) :
 def peut_on_appliquer_mvt_en_passant(tab, i1, j1, i2, j2) :
     indiceJDroite=j1+1
     indiceJGauche=j1-1
+    indiceDescendre=i1-1
 
     indiceMonter=i1+1
     tabATester=tabBoolPionN
@@ -399,21 +385,21 @@ def verificationCasserEnPassantFactoriser(i2, j2, aux, position) :
 
 def verificationCasserEnPassant(tab, i1, j1, i2, j2) :
     verificationCasserEnPassantFactoriser(i2, j2, tabBoolPionB, 2)
-    verificationCasserEnPassantFactoriser(i2, j2, tabBoolPionB, 5)
+    verificationCasserEnPassantFactoriser(i2, j2, tabBoolPionN, 5)
 
 
 
-    
+
 
 def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : #on suppose qu'uniquement des coups légaux sont données
-    if (peut_on_appliquer_mvt_en_passant) :
+    if (peut_on_appliquer_mvt_en_passant)(tab, i1, j1, i2, j2) :
         appliquer_mouvement_en_passant(tab, i1, j1, i2, j2)
 
     if (abs(tab[i1][j1])==6 and abs(j1-j2)==2) : # on est dans le cas d'un roque
         forcer_mouv_tour_cas_roque(tab, i2, j2)
-    if (abs(tab[i1][j1]==1)) :
+    if (abs(tab[i1][j1])==1) :
         #Cas ou on active l'en passant
-        if (abs(j1-j2)==2 and i1==i2 and ((i1==1 and i2==3) or (i1==6 and i2==4))) :
+        if (abs(j1-j2)==2 and ((i1==1 and i2==3) or (i1==6 and i2==4))) :
             activationEnPassant(tab, i1, j1)
 
     verificationCasserEnPassant(tab, i1, j1, i2, j2)
