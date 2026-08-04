@@ -25,19 +25,23 @@ def signe(val) :
         return 0
     return abs(val)//val
 
-#on fera après le en passant, le coup du rock et le timer
+#on fera après le en passant et le timer
+
+def verificationPionMange(tab, i, j1) :
+    return (limiteEchequierUnique(j1) and tab[i][j1]!=0)
+
+def factorisationPionMange(tab, i, j, liste) :
+    if (verificationPionMange(tab, i, j)) :
+        liste.append((i, j))
 
 def PionMange(tab, i,j) :
     liste =[]
     i=i+1*signe(tab[i][j])
-    j1= j+1
-    j2=j-1
+    j1, j2 = tupleIncrementerDecrementer(j)  
     if (not verifLimitHauteur(tab, i)) :
         return liste
-    if (limiteEchequierUnique(j1) and tab[i][j1]!=0) :
-        liste.append((i, j1))
-    if  (limiteEchequierUnique(j2) and tab[i][j2]!=0) : 
-        liste.append((i, j2))
+    factorisationPionMange(tab, i, j1, liste)
+    factorisationPionMange(tab, i, j2, liste)
     return liste
 
 def mouvementPion(tab, i, j) :
@@ -129,12 +133,38 @@ def rajoutEnPassant(tab, i, j) :
         return rajoutEnPassantNeutre(tab, i, j, tabBoolPionB, -1)
 
 
-def rajoutEnPassantNeutre(tab, i, j, tabATester ,signe) :
+def caseLibre(tab, i, j) :
+    return tab[i][j]==0
+
+def piecePresente(tab, i, j, valeurOpp) :
+    return tab[i][j]==valeurOpp
+
+def PeutEnPassant(tab, j) :
+    return tab[j]
+
+def conditionRajoutEnPassantNeutre(tab, avancement, decalement, i, valeurOpp, tabATester) :
+    return caseLibre(tab, avancement, decalement) and piecePresente(tab, i, decalement, valeurOpp) and  PeutEnPassant(tabATester, decalement)
+
+def rajoutEnPassantNeutre(tab, i, j, tabATester ,signe) : #ok on doit vérifier s'il y a un pion adverse à côté
     liste=[]
-    if (tab[i+1*signe][j+1]==0 and tabATester[j+1]==True) :
-        liste.append((i+1*signe, j+1))
-    if (tab[i+1*signe][j-1]==0 and tabATester[j-1]==True) :
-        liste.append((i+1*signe,j-1))
+    decaleADroite= j+1
+    decaleAGauche=j-1
+    avancement=i+1*signe
+    valeurOpp = tab[i][j]*(-1)
+    if (j>0 and j<7) :
+        if (conditionRajoutEnPassantNeutre(tab, avancement, decaleADroite, i, valeurOpp, tabATester)) :
+            liste.append((i+1*signe, decaleADroite))
+        if (conditionRajoutEnPassantNeutre(tab, avancement, decaleAGauche, i, valeurOpp, tabATester)) :
+            liste.append((avancement,decaleAGauche))
+
+    if (j==0) :
+        if (conditionRajoutEnPassantNeutre(tab, avancement, decaleADroite, i, valeurOpp, tabATester)) :
+            liste.append((avancement, decaleADroite))
+
+    if(j==7) :
+        if (conditionRajoutEnPassantNeutre(tab, avancement, decaleAGauche, i, valeurOpp, tabATester)) :
+            liste.append((avancement, decaleAGauche))
+
     return liste
 
 def casRoqueVerif(tab, i, j, positionIBoucle, positionFBoucle, indice) :
@@ -321,22 +351,26 @@ def activationEnPassant(tab, i, j) :
     if (tab[i][j]==-1) : #cas d'un pion
         tabBoolPionN[j]=True
 
+def indiceDecrementer(i) :
+    return i-1
 
+def indiceIncrementer(i) :
+    return i+1
 
-
+def tupleIncrementerDecrementer(i) :
+    return (indiceIncrementer(i), indiceDecrementer(i))
 
 def peut_on_appliquer_mvt_en_passant(tab, i1, j1, i2, j2) :
-    indiceJDroite=j1+1
-    indiceJGauche=j1-1
-    indiceDescendre=i1-1
+    indiceJDroite, indiceJGauche = tupleIncrementerDecrementer(j1)
+    indiceMonter, indiceDescendre = tupleIncrementerDecrementer(i1)
 
-    indiceMonter=i1+1
+
     tabATester=tabBoolPionN
     valeurATester=-1
     val=tab[i1][j1]
 
-    if (tab[i1][j1]==1): #pour les noits
-        indiceMonter=i1-1
+    if (tab[i1][j1]==-1): #pour les noirs
+        indiceMonter=indiceDecrementer(i1)
         tabATester=tabBoolPionB
         valeurATester=1
 
@@ -346,18 +380,19 @@ def peut_on_appliquer_mvt_en_passant(tab, i1, j1, i2, j2) :
 
 
 def appliquer_mouvement_en_passant(tab, i1, j1, i2, j2) :
-    indiceJDroite=j1+1
-    indiceJGauche=j1-1
+    
+    indiceJDroite=indiceIncrementer(j1)
+    indiceJGauche=indiceDecrementer(j1)
+    indiceMonter=indiceIncrementer(i1)
+    indiceDescendre=indiceDecrementer(i1)
 
-    indiceMonter=i1+1
-    indiceDescendre=i1-1
     tabATester=tabBoolPionN
     valeurATester=-1
     val=tab[i1][j1]
 
 
-    if (tab[i1][j1]==1): #pour les noits
-        indiceMonter=i1-1
+    if (tab[i1][j1]==-1): #pour les noits
+        indiceMonter=indiceDecrementer(i1)
         tabATester=tabBoolPionB
         valeurATester=1
         # a droite
