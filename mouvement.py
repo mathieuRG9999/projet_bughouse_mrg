@@ -34,8 +34,13 @@ def factorisationPionMange(tab, i, j, liste) :
     if (verificationPionMange(tab, i, j)) :
         liste.append((i, j))
 
+
+def indiceIncrementerEnFonctionDuSigne(tab, i, j, valeurAvancement, valeurAIncrementer) :
+    return valeurAIncrementer+valeurAvancement*signe(tab[i][j])
+
 def PionMange(tab, i,j) :
     liste =[]
+    i=indiceIncrementerEnFonctionDuSigne(tab, i, j, 1, i)
     i=i+1*signe(tab[i][j])
     j1, j2 = tupleIncrementerDecrementer(j)  
     if (not verifLimitHauteur(tab, i)) :
@@ -44,18 +49,27 @@ def PionMange(tab, i,j) :
     factorisationPionMange(tab, i, j2, liste)
     return liste
 
+def verifMvtPionFact_aux(tab, i, j, decalement1, decalement2) :
+    return (verifLimitHauteur(tab, i+decalement1) and tab[i+decalement2][j]==0)
+
+def verifMvtPionFact(tab, i, j, decalement) :
+    return (verifLimitHauteur(tab, i+decalement) and tab[i+decalement][j]==0)
+
+def verifPuisAjoutMvtPion(tab, i, j, decalement, liste) :
+    if (verifMvtPionFact(tab, i, j, decalement*2)) :
+        liste.append((i+2*decalement, j))    
+
 def mouvementPion(tab, i, j) :
     liste= PionMange(tab, i, j)
     val =tab[i][j]
     direction = signe(val)
     if (abs(val)==1) :
         if (((i==1) and (direction>0)) or ((i==6) and (direction<0))) :
-            if (verifLimitHauteur(tab, i+direction) and tab[i+direction][j]==0) :
+            if (verifMvtPionFact(tab, i, j, direction)) :
                 liste.append((i+direction, j))
-                if (verifLimitHauteur(tab, i+2*direction) and tab[i+direction*2][j]==0) :
-                    liste.append((i+2*direction, j))
+                verifPuisAjoutMvtPion(tab, i, j, direction, liste)
         else  :
-            if (verifLimitHauteur(tab, i+direction) and tab[i+1][j]==0) :
+            if (verifMvtPionFact(tab, i, j, direction)) :
                 liste.append((i+direction, j))
     liste.extend(rajoutEnPassant(tab, i, j))
     return liste
@@ -145,26 +159,23 @@ def PeutEnPassant(tab, j) :
 def conditionRajoutEnPassantNeutre(tab, avancement, decalement, i, valeurOpp, tabATester) :
     return caseLibre(tab, avancement, decalement) and piecePresente(tab, i, decalement, valeurOpp) and  PeutEnPassant(tabATester, decalement)
 
+def rajoutEnPassantNeutreFactorisation(tab, avancement, decalement, i, valeurOpp, tabATester, liste) :
+    if (conditionRajoutEnPassantNeutre(tab, avancement, decalement, i, valeurOpp, tabATester)) :
+        liste.append((avancement, decalement))
+
 def rajoutEnPassantNeutre(tab, i, j, tabATester ,signe) : #ok on doit vérifier s'il y a un pion adverse à côté
     liste=[]
-    decaleADroite= j+1
-    decaleAGauche=j-1
+    decaleADroite, decaleAGauche= tupleIncrementerDecrementer(j)
     avancement=i+1*signe
+    avancement
     valeurOpp = tab[i][j]*(-1)
     if (j>0 and j<7) :
-        if (conditionRajoutEnPassantNeutre(tab, avancement, decaleADroite, i, valeurOpp, tabATester)) :
-            liste.append((i+1*signe, decaleADroite))
-        if (conditionRajoutEnPassantNeutre(tab, avancement, decaleAGauche, i, valeurOpp, tabATester)) :
-            liste.append((avancement,decaleAGauche))
-
+        rajoutEnPassantNeutreFactorisation(tab, avancement, decaleADroite, i, valeurOpp, tabATester, liste)
+        rajoutEnPassantNeutreFactorisation(tab, avancement, decaleAGauche, i, valeurOpp, tabATester, liste)
     if (j==0) :
-        if (conditionRajoutEnPassantNeutre(tab, avancement, decaleADroite, i, valeurOpp, tabATester)) :
-            liste.append((avancement, decaleADroite))
-
+        rajoutEnPassantNeutreFactorisation(tab, avancement, decaleADroite, i, valeurOpp, tabATester, liste)
     if(j==7) :
-        if (conditionRajoutEnPassantNeutre(tab, avancement, decaleAGauche, i, valeurOpp, tabATester)) :
-            liste.append((avancement, decaleAGauche))
-
+        rajoutEnPassantNeutreFactorisation(tab, avancement, decaleAGauche, i, valeurOpp, tabATester, liste)
     return liste
 
 def casRoqueVerif(tab, i, j, positionIBoucle, positionFBoucle, indice) :
@@ -254,11 +265,6 @@ def mangerTroupeAdverse(tab, i, j, couleur) :
 def valeurMange(tab, i, j) :
     return tab[i][j]
 
-# def recupererValeurSupp(tab, xInitial, yInitial, xFutur, yFutur) :
-#     ancienneValeur=tab[xFutur][yFutur]
-#     tab[xFutur][yFutur] = tab[xInitial][yInitial]
-#     tab[xInitial][yInitial] = 0
-#     return ancienneValeur #elle est à 0 s'il n'y avait rien
 
 def deposerPiece(tab, val, x, y) :
     tab[x][y]=val
@@ -360,6 +366,10 @@ def indiceIncrementer(i) :
 def tupleIncrementerDecrementer(i) :
     return (indiceIncrementer(i), indiceDecrementer(i))
 
+
+def parametres_en_passant(i, j) :
+    return (indiceIncrementer(i), indiceDecrementer(i), indiceIncrementer(j), indiceDecrementer(j))
+
 def peut_on_appliquer_mvt_en_passant(tab, i1, j1, i2, j2) :
     indiceJDroite, indiceJGauche = tupleIncrementerDecrementer(j1)
     indiceMonter, indiceDescendre = tupleIncrementerDecrementer(i1)
@@ -374,17 +384,14 @@ def peut_on_appliquer_mvt_en_passant(tab, i1, j1, i2, j2) :
         tabATester=tabBoolPionB
         valeurATester=1
 
-    return (tab[i1][indiceJDroite]==valeurATester and tabATester[indiceJDroite]==True and tab[indiceMonter][indiceJDroite]==0 and i2==indiceMonter and j2==indiceJDroite) or (tab[i1][indiceJGauche]==valeurATester and tabATester[indiceJGauche]==True and tab[indiceDescendre][indiceJGauche]==0 and i2)
+    return (tab[i1][indiceJDroite]==valeurATester and tabATester[indiceJDroite]==True and tab[indiceMonter][indiceJDroite]==0 and i2==indiceMonter and j2==indiceJDroite) or (tab[i1][indiceJGauche]==valeurATester and tabATester[indiceJGauche]==True and tab[indiceMonter][indiceJGauche]==0 and i2==indiceMonter and j2==indiceJGauche)
     
 
 
 
 def appliquer_mouvement_en_passant(tab, i1, j1, i2, j2) :
-    
-    indiceJDroite=indiceIncrementer(j1)
-    indiceJGauche=indiceDecrementer(j1)
-    indiceMonter=indiceIncrementer(i1)
-    indiceDescendre=indiceDecrementer(i1)
+    indiceMonter, indiceDescendre, indiceJDroite, indiceJGauche = parametres_en_passant(i1, j1)
+
 
     tabATester=tabBoolPionN
     valeurATester=-1
@@ -405,7 +412,7 @@ def appliquer_mouvement_en_passant(tab, i1, j1, i2, j2) :
         return valeur
 
         # a gauche
-    if (tab[i1][indiceJGauche]==valeurATester and tabATester[indiceJGauche]==True and tab[indiceDescendre][indiceJGauche]==0 and i2) : 
+    if (tab[i1][indiceJGauche]==valeurATester and tabATester[indiceJGauche]==True and tab[indiceMonter][indiceJGauche]==0 and i2==indiceMonter and j2==indiceJGauche) : 
         tab[i2][j2]=val
         tab[i1][j1]=0
         valeur=tab[i1][indiceJGauche]
@@ -427,14 +434,16 @@ def verificationCasserEnPassant(tab, i1, j1, i2, j2) :
 
 
 def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : #on suppose qu'uniquement des coups légaux sont données
-    if (peut_on_appliquer_mvt_en_passant)(tab, i1, j1, i2, j2) :
-        appliquer_mouvement_en_passant(tab, i1, j1, i2, j2)
+    if (peut_on_appliquer_mvt_en_passant(tab, i1, j1, i2, j2)) :
+        valeur = appliquer_mouvement_en_passant(tab, i1, j1, i2, j2)
+        verificationCasserEnPassant(tab, i1, j1, i2, j2)
+        return valeur
 
     if (abs(tab[i1][j1])==6 and abs(j1-j2)==2) : # on est dans le cas d'un roque
         forcer_mouv_tour_cas_roque(tab, i2, j2)
     if (abs(tab[i1][j1])==1) :
         #Cas ou on active l'en passant
-        if (abs(j1-j2)==2 and ((i1==1 and i2==3) or (i1==6 and i2==4))) :
+        if (abs(i1-i2)==2 and ((i1==1 and i2==3) or (i1==6 and i2==4))) :
             activationEnPassant(tab, i1, j1)
 
     verificationCasserEnPassant(tab, i1, j1, i2, j2)
@@ -497,4 +506,3 @@ def mouvement_to_string(tab, coup) :
     else :
         print("(",i1, ", ", j1, ")", "-> (", i2,",", j2,")")
     print(", valeur =", valeurMouvement(tab, i1, j1, i2, j2))
-    
