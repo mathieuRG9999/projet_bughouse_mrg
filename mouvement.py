@@ -14,6 +14,50 @@ tabBoolPionB=[False, False, False, False, False, False, False, False] # pion bla
 tabBoolPionN=[False, False, False, False, False, False, False, False] # pion blanc en Passant possible
 
 nbMouvementTot = 0
+        # 1 -> coup normal
+        # 2 -> roque
+        # 3 -> en passant
+        # 4 -> on pose une troupe
+
+coup_normal=1
+coup_roque =2
+coup_EnPassant=3
+coupPoseTroupe=4
+
+
+
+#pour le backtracking et annuler un coup du roque
+
+def annulerRoqueBlancGauche() :
+    tabBoolRoi[0]=False
+    tabBoolTour[0]=False
+
+def annulerRoqueBlancDroite() :
+    tabBoolRoi[0]=False
+    tabBoolTour[1]=False
+
+def annulerRoqueNoirGauche() :
+    tabBoolRoi[1]=False
+    tabBoolTour[0]=False
+
+def annulerRoqueNoirDroite() :
+    tabBoolRoi[1]=False
+    tabBoolTour[1]=False
+
+###########################################################################
+
+#pour le backtracking et annuler un coup en passant
+
+def annulerEnPassantPionBlanc(position) :
+    tabBoolPionB[position]=False
+
+def annulerEnPassantPionNoir(position) :
+    tabBoolPionN[position]=False
+
+###########################################################################
+
+
+
 
 def incrementNbMvtTot() :
     nbMouvementTot+=1
@@ -351,16 +395,53 @@ def mauvaisMouvementValeur(tab, i, j, i1, j1) :
             return -10 # c'est une valeur arbitraire pour le moment, pour pas qu'il ne le fasse
     return 0
 
-def forcer_mouv_tour_cas_roque(tab, i2, j2) :
-    indice=1
-    if (i2==-1) :
-        indice=1
-    if (j2==2) :
-        tab[i2][3]=4*indice
-        tab[i2][0]=0
-    if (i2==0 and j2==6) :
-        tab[i2][5]=4*indice
-        tab[i2][7]=0
+
+
+
+
+
+
+
+
+
+
+def forcer_mouv_tour_cas_roque(tab, i2, j2) : 
+    signe = abs(tab[i2][4])//tab[i2][4] # a corriger plus tard, on a une fonction pour ça
+    valeurTour = 4*signe
+    valeurRoi = 6*signe
+    positionRoiInitialeJ = 4
+    if (forcer_mouv_tour_cas_roque_bool(i2, j2, 2)) :
+        forcer_mouv_tour_cas_roque_factorisation(valeurTour, valeurRoi, i2, 0, 3, positionRoiInitialeJ, 2, tab)
+    if (forcer_mouv_tour_cas_roque_bool(i2, j2, 6)) :
+        forcer_mouv_tour_cas_roque_factorisation(valeurTour, valeurRoi, i2, 7, 5, positionRoiInitialeJ, 6, tab)
+
+
+def forcer_mouv_tour_cas_roque_factorisation(valeurTour, valeurRoi, positionI, positionInitialTourJ, positionFutourTourJ, positionRoiInitialeJ, positionRoiFuturJ, tab) :
+    tab[positionI][positionInitialTourJ]= 0
+    tab[positionI][positionFutourTourJ]= valeurTour
+    tab[positionI][positionRoiInitialeJ] = 0
+    tab[positionI][positionRoiFuturJ] = valeurRoi
+
+def EstSurLigneExtreme(i) :
+    return (i==0 or i==7)
+
+def forcer_mouv_tour_cas_roque_bool(i, j, jAVerif) :
+    return (EstSurLigneExtreme(i) and jAVerif==j)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def activationEnPassant(tab, i, j) :
     if (tab[i][j]==1) : #cas d'un pion
@@ -444,25 +525,90 @@ def verificationCasserEnPassant(tab, i1, j1, i2, j2) :
 
 
 
-def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : #on suppose qu'uniquement des coups légaux sont données
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ #on corrige cette fonction pour pouvoir apres l'annuler
+
+def appliquer_mouvement_classique_cas_roque(tab, i1, j1, i2, j2) :
+    if (abs(tab[i1][j1])==6 and abs(j1-j2)==2) : # on est dans le cas d'un roque
+        forcer_mouv_tour_cas_roque(tab, i2, j2)
+        enleverRoque(tab, i1, j1)
+        return (0,coup_roque)
+    return (0,0)
+
+def appliquer_mouvement_classique_cas_EnPassant(tab, i1, j1, i2, j2) :
     if (peut_on_appliquer_mvt_en_passant(tab, i1, j1, i2, j2)) :
         valeur = appliquer_mouvement_en_passant(tab, i1, j1, i2, j2)
         verificationCasserEnPassant(tab, i1, j1, i2, j2)
-        return valeur
+        return (valeur, coup_EnPassant)
+    return (0,0)
 
-    if (abs(tab[i1][j1])==6 and abs(j1-j2)==2) : # on est dans le cas d'un roque
-        forcer_mouv_tour_cas_roque(tab, i2, j2)
+def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : #on suppose qu'uniquement des coups légaux sont données
+    #comme je n'ai pas compris a quoi sert valeur on va maintenant renvoyer un tuple (valeur, type_de_coup)
+    type_de_coup=(0,0)
+
+    coupRoque = appliquer_mouvement_classique_cas_roque(tab, i1, j1, i2, j2)
+    if (TupleEstNonNul(coupRoque)) :
+        return coupRoque
+
+    coupEnPassant = appliquer_mouvement_classique_cas_EnPassant(tab, i1, j1, i2, j2)
+    if (TupleEstNonNul(coupEnPassant)) :
+        return coupEnPassant
+
+
+
     if (abs(tab[i1][j1])==1) :
         #Cas ou on active l'en passant
         if (abs(i1-i2)==2 and ((i1==1 and i2==3) or (i1==6 and i2==4))) :
             activationEnPassant(tab, i1, j1)
 
     verificationCasserEnPassant(tab, i1, j1, i2, j2)
-    enleverRoque(tab, i1, j1)
+    valeur = remplacerValeur(tab, i1, j1, i2, j2)
+    return (valeur, coup_normal)
+
+def TupleEstNonNul(couple) :
+    return couple!=(0,0)
+
+def remplacerValeur(tab, i1, j1, i2, j2) :
     valeur =tab[i2][j2]
     tab[i2][j2]=tab[i1][j1]
     tab[i1][j1]=0
     return valeur
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###########################################################################################################################
+
 
 
 
@@ -473,7 +619,7 @@ def casStupideRoqueFactorisation(c1, c2, indice) :
         return True
     return False
  
-def casStupideRoque(tab, i, j) :
+def casStupideRoque(tab, i, j, signe) :
     indice=0
     if (tab[i][j]<0) :
         indice=1
@@ -530,3 +676,9 @@ def pionPrendCentreRoi(tab) :
     
 def pionPrendCentreReine(tab) :
     return pionPositionPrendCentre(tab, 3)
+
+def annulerCoupClassique(tab, i1, j1, i2, j2, pieceMange) :
+    tab[i1][j1]=tab[i2][j2]
+    tab[i2][j2]=pieceMange
+
+#647 lignes

@@ -148,14 +148,27 @@ class bughouse:
         return listeCoups
 
         
+
+    def appliquerCoupPose(self, numPlateau, i1, j1, i2, j2) :
+        valeur=j1
+        self.removeListe(numPlateau, valeur)
+        mouvement.poserSurPlateau(self.quellePlateau(numPlateau), i2, j2, valeur)
+
     def appliquerCoup(self, numPlateau, coup) :
+        # 1 -> coup normal
+        # 2 -> roque
+        # 3 -> en passant
+        # 4 -> on pose une troupe
+
+
         arrivee, final, pieceMangee= coup
         i1, j1=arrivee
         i2, j2= final
+
+
         if (i1==-1) : #cas ou on doit récuperer une valeur
-            valeur=j1
-            self.removeListe(numPlateau, valeur)
-            mouvement.poserSurPlateau(self.quellePlateau(numPlateau), i2, j2, valeur)
+            self.appliquerCoupPose(numPlateau, i1, j1, i2, j2)
+            return -1
         else :
             valeur=mouvement.appliquer_mouvement_classique(self.quellePlateau(numPlateau), i1, j1, i2, j2)
             if (valeur==0):
@@ -276,5 +289,5 @@ class bughouse:
         if (i1==-1) : #le cas ou on a posé une troupe avant, piece mange=0
             annulerCoupPoser(tab, j1, i2, j2)
         else :
-            annulerCoupClassique(tab, i1, j1, i2, j2)
+            annulerCoupClassique(tab, i1, j1, i2, j2, pieceMange)
         
