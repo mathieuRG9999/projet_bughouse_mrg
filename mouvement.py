@@ -13,6 +13,18 @@ tabBoolTour=[False, False, False, False] #  TB1, TB2, TN1, TN2
 tabBoolPionB=[False, False, False, False, False, False, False, False] # pion blanc en Passant possible
 tabBoolPionN=[False, False, False, False, False, False, False, False] # pion blanc en Passant possible
 
+nbMouvementTot = 0
+
+def incrementNbMvtTot() :
+    nbMouvementTot+=1
+
+def getNbMvtTot() :
+    return nbMouvementTot
+
+def estEnDebutDePartie() :
+    return nbMouvementTot<15
+
+
 
 def verifLimitHauteur(tab, i) :
     return not (i<0 or i>= len(tab)) 
@@ -33,7 +45,6 @@ def verificationPionMange(tab, i, j1) :
 def factorisationPionMange(tab, i, j, liste) :
     if (verificationPionMange(tab, i, j)) :
         liste.append((i, j))
-
 
 def indiceIncrementerEnFonctionDuSigne(tab, i, j, valeurAvancement, valeurAIncrementer) :
     return valeurAIncrementer+valeurAvancement*signe(tab[i][j])
@@ -506,3 +517,16 @@ def mouvement_to_string(tab, coup) :
     else :
         print("(",i1, ", ", j1, ")", "-> (", i2,",", j2,")")
     print(", valeur =", valeurMouvement(tab, i1, j1, i2, j2))
+
+
+def pionPositionPrendCentre(tab, position) :
+    for i in range (2,4) :
+        if (tab[i][position]==1) :
+            return True
+
+def pionPrendCentreRoi(tab) :
+    return pionPositionPrendCentre(tab, 4)
+
+    
+def pionPrendCentreReine(tab) :
+    return pionPositionPrendCentre(tab, 3)

@@ -239,14 +239,36 @@ class bughouse:
                         break # Élagage
                 return min_eval
 
+
+    def pointPionCentraux(self, echequier, score) :
+        if (mouvement.pionPrendCentreRoi(echequier)) :
+            score+=5
+        if (mouvement.pionPrendCentreReine(echequier)) :
+            score+=5
+        return score
+
     def evaluerPlateau(self, numPlateau):
+        echequier= self.quellePlateau(numPlateau)
             # C'est ici que tu mets ton code.
             # Retourne un float positif si tu gagnes, négatif si tu perds.
-            pass
+
+        score=0
+        #il faut en début de partie prendre le centre
+        if (mouvement.estEnDebutDePartie()) :
+            #il faut regarder si le centre est pris et les pieces sont sorties
+            print("on est en début de partie")
+
+            #est ce que ca pose soucis si je mets des éléments précis et que je n'adapte pas en fontion de la couleur ?
+
+            if (echequier[1][5]<=0) : #on veut proteger cette zone en gros
+                score-= 50
+            score = pointPionCentraux(echequier, score) 
+
+        return score
 
 
 
-    def annulerCoup(self, numPlateau, coup) : #on suppose que le coup a été appliqué et il faut l'annuler
+    def annulerCoup(self, numPlateau, coup, etat_capture) : #on suppose que le coup a été appliqué et il faut l'annuler
         tab=self.quellePlateau(numPlateau)
         arrivee, depart, pieceMangee= coup
         i1, j1 = arrivee
