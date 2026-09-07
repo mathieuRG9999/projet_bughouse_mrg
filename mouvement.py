@@ -81,6 +81,13 @@ def signe(val) :
         return 0
     return abs(val)//val
 
+def signePourLeRoque(i) :
+    if (i==0) :
+        return 1
+    if (i==7) :
+        return -1
+    print("soucis sur signePourLeRoque")
+
 #on fera après le en passant et le timer
 
 def verificationPionMange(tab, i, j1) :
@@ -480,21 +487,8 @@ def peut_on_appliquer_mvt_en_passant(tab, i1, j1, i2, j2) :
         indiceMonter=indiceDecrementer(i1)
         tabATester=tabBoolPionB
         valeurATester=1
-
-
-
     return condition_retour_mv_passant(tab, i1, indiceJDroite, valeurATester, tabATester, indiceMonter, i2, j2) or condition_retour_mv_passant(tab, i1, indiceJGauche, valeurATester, tabATester, indiceMonter, i2, j2)
-    # return ((test_val_2D(tab, i1, indiceJDroite, valeurATester) and test_val_1D(tabATester, indiceJDroite, True) 
-    # and  test_val_2D(tab, indiceMonter, indiceJDroite, 0)  and i2==indiceMonter and j2==indiceJDroite)
-    
-    #  or 
-    #     (test_val_2D(tab, i1, indiceJGauche, valeurATester) and test_val_1D(tabATester, indiceJGauche, True) 
-    # and  test_val_2D(tab, indiceMonter, indiceJGauche, 0)  and i2==indiceMonter and j2==indiceJGauche))
 
-
-
-    #  (              tab[i1][indiceJGauche]==valeurATester and tabATester[indiceJGauche]==True 
-    #  and tab[indiceMonter][indiceJGauche]==0  and i2==indiceMonter and j2==indiceJGauche)
 
 
 def condition_retour_mv_passant(tab, i1, indiceCote, valeurATester, tabATester, indiceMonter, i2, j2) :
@@ -505,13 +499,13 @@ def test_val_2D(tab, i, j, valeur) :
     return tab[i][j]==valeur
 
 def test_val_1D(tab, i, valeur) :
-    return tab[i][j]==valeur
+    return tab[i]==valeur
 
 
 
 
 
-def appliquer_mouvement_en_passant(tab, i1, j1, i2, j2) :
+def appliquer_mouvement_en_passant(tab, i1, j1, i2, j2) : #à factoriser 
     indiceMonter, indiceDescendre, indiceJDroite, indiceJGauche = parametres_en_passant(i1, j1)
 
 
@@ -572,6 +566,14 @@ def verificationCasserEnPassant(tab, i1, j1, i2, j2) :
 
  #on corrige cette fonction pour pouvoir apres l'annuler
 
+def casBougerTourRoiRoque(tab, i, j) :
+    liste= [(0,0), (0, 7), (7,0), (7,7), (0,4), (7, 4)]
+    for coord in liste :
+        if ((i, j)==coord) :
+            enleverRoque(tab, i, j)
+    
+
+
 def appliquer_mouvement_classique_cas_roque(tab, i1, j1, i2, j2) :
     if (abs(tab[i1][j1])==6 and abs(j1-j2)==2) : # on est dans le cas d'un roque
         forcer_mouv_tour_cas_roque(tab, i2, j2)
@@ -598,10 +600,11 @@ def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : #on suppose qu'uniqueme
     if (TupleEstNonNul(coupEnPassant)) :
         return coupEnPassant
 
+    #cas ou on enlève le roque
+    casBougerTourRoiRoque(tab, i1, j1)
 
-
+    #Cas ou on active l'en passant
     if (abs(tab[i1][j1])==1) :
-        #Cas ou on active l'en passant
         if (abs(i1-i2)==2 and ((i1==1 and i2==3) or (i1==6 and i2==4))) :
             activationEnPassant(tab, i1, j1)
 
@@ -651,13 +654,14 @@ def casStupideRoqueFactorisation(c1, c2, indice) :
  
 def casStupideRoque(tab, i, j, signe) :
     indice=0
-    if (tab[i][j]<0) :
+    if (signe<0) :
         indice=1
     casStupideRoqueFactorisation(tabBoolTour[indice*2], tabBoolTour[indice*2+1], indice)
     return tabBoolRoi[indice]
 
-def enleverRoque(tab, i, j) :
-    if (casStupideRoque(tab, i, j)) :
+def enleverRoque(tab, i, j) : #elle met à jour les droits pour le roque
+    signe=signePourLeRoque(i)
+    if (casStupideRoque(tab, i, j, signe)) :
         return
     enleverRoqueRoi(tab, i, j)
     enleverRoqueTour(tab, i, j)
