@@ -390,13 +390,16 @@ def heuristiquePoserTroupe(tab, valeur, x, y) :
     return valeur*1.5 #on fera quelque chose d'un peu plus détaillé par la suite
 
 def mauvaisMouvementValeur(tab, i, j, i1, j1) :
-    if (abs(tab[i][j])==1) :
-        if ((i==1) or (i==6) and j==5) :
+    if (estPion(tab, i, j)) :
+        if (surLignePion(i) and j==5) :
             return -10 # c'est une valeur arbitraire pour le moment, pour pas qu'il ne le fasse
     return 0
 
+def surLignePion(i) :
+    return i==1 or i==6
 
-
+def estPion(tab, i, j) :
+    return abs(tab[i][j])==1
 
 
 
@@ -462,6 +465,8 @@ def tupleIncrementerDecrementer(i) :
 def parametres_en_passant(i, j) :
     return (indiceIncrementer(i), indiceDecrementer(i), indiceIncrementer(j), indiceDecrementer(j))
 
+
+
 def peut_on_appliquer_mvt_en_passant(tab, i1, j1, i2, j2) :
     indiceJDroite, indiceJGauche = tupleIncrementerDecrementer(j1)
     indiceMonter, indiceDescendre = tupleIncrementerDecrementer(i1)
@@ -476,8 +481,33 @@ def peut_on_appliquer_mvt_en_passant(tab, i1, j1, i2, j2) :
         tabATester=tabBoolPionB
         valeurATester=1
 
-    return (tab[i1][indiceJDroite]==valeurATester and tabATester[indiceJDroite]==True and tab[indiceMonter][indiceJDroite]==0 and i2==indiceMonter and j2==indiceJDroite) or (tab[i1][indiceJGauche]==valeurATester and tabATester[indiceJGauche]==True and tab[indiceMonter][indiceJGauche]==0 and i2==indiceMonter and j2==indiceJGauche)
+
+
+    return condition_retour_mv_passant(tab, i1, indiceJDroite, valeurATester, tabATester, indiceMonter, i2, j2) or condition_retour_mv_passant(tab, i1, indiceJGauche, valeurATester, tabATester, indiceMonter, i2, j2)
+    # return ((test_val_2D(tab, i1, indiceJDroite, valeurATester) and test_val_1D(tabATester, indiceJDroite, True) 
+    # and  test_val_2D(tab, indiceMonter, indiceJDroite, 0)  and i2==indiceMonter and j2==indiceJDroite)
     
+    #  or 
+    #     (test_val_2D(tab, i1, indiceJGauche, valeurATester) and test_val_1D(tabATester, indiceJGauche, True) 
+    # and  test_val_2D(tab, indiceMonter, indiceJGauche, 0)  and i2==indiceMonter and j2==indiceJGauche))
+
+
+
+    #  (              tab[i1][indiceJGauche]==valeurATester and tabATester[indiceJGauche]==True 
+    #  and tab[indiceMonter][indiceJGauche]==0  and i2==indiceMonter and j2==indiceJGauche)
+
+
+def condition_retour_mv_passant(tab, i1, indiceCote, valeurATester, tabATester, indiceMonter, i2, j2) :
+    return test_val_2D(tab, i1, indiceCote, valeurATester) and test_val_1D(tabATester, indiceCote, True) and  test_val_2D(tab, indiceMonter, indiceCote, 0)  and i2==indiceMonter and j2==indiceCote
+
+    
+def test_val_2D(tab, i, j, valeur) :
+    return tab[i][j]==valeur
+
+def test_val_1D(tab, i, valeur) :
+    return tab[i][j]==valeur
+
+
 
 
 
