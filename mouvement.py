@@ -13,6 +13,9 @@ tabBoolTour=[False, False, False, False] #  TB1, TB2, TN1, TN2
 tabBoolPionB=[False, False, False, False, False, False, False, False] # pion blanc en Passant possible
 tabBoolPionN=[False, False, False, False, False, False, False, False] # pion blanc en Passant possible
 
+sauvegarde = (tabBoolPionB.copy(), tabBoolPionN.copy(), tabBoolRoi.copy(), tabBoolTour.copy())
+historique_etats = []
+
 nbMouvementTot = 0
         # 1 -> coup normal
         # 2 -> roque
@@ -59,14 +62,14 @@ def annulerEnPassantPionNoir(position) :
 
 
 
-def incrementNbMvtTot() :
-    nbMouvementTot+=1
+# def incrementNbMvtTot() :
+#     nbMouvementTot+=1
 
-def getNbMvtTot() :
-    return nbMouvementTot
+# def getNbMvtTot() :
+#     return nbMouvementTot
 
-def estEnDebutDePartie() :
-    return nbMouvementTot<15
+# def estEnDebutDePartie() :
+#     return nbMouvementTot<15
 
 
 
@@ -496,7 +499,9 @@ def condition_retour_mv_passant(tab, i1, indiceCote, valeurATester, tabATester, 
 
     
 def test_val_2D(tab, i, j, valeur) :
-    return tab[i][j]==valeur
+    if (i>=0 and i<8) :
+        if (j>=0 and j<8) :
+            return tab[i][j]==valeur
 
 def test_val_1D(tab, i, valeur) :
     return tab[i]==valeur
@@ -588,29 +593,78 @@ def appliquer_mouvement_classique_cas_EnPassant(tab, i1, j1, i2, j2) :
         return (valeur, coup_EnPassant)
     return (0,0)
 
-def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : #on suppose qu'uniquement des coups légaux sont données
-    #comme je n'ai pas compris a quoi sert valeur on va maintenant renvoyer un tuple (valeur, type_de_coup)
+
+
+def reinitialisation_en_passant() :
+    global tabBoolPionB, tabBoolPionN
+    tabBoolPionB = [False] * 8
+    tabBoolPionN = [False] * 8
+
+
+def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : 
+    
     type_de_coup=(0,0)
 
+    #on fait la copie
+    sauvegarde = (tabBoolPionB.copy(), tabBoolPionN.copy(), tabBoolRoi.copy(), tabBoolTour.copy()) 
+    historique_etats.append(sauvegarde)
+
+    reinitialisation_en_passant()
+
+    #on regarde le coup du roque
     coupRoque = appliquer_mouvement_classique_cas_roque(tab, i1, j1, i2, j2)
     if (TupleEstNonNul(coupRoque)) :
         return coupRoque
 
+
+    #on regarde en passant
     coupEnPassant = appliquer_mouvement_classique_cas_EnPassant(tab, i1, j1, i2, j2)
     if (TupleEstNonNul(coupEnPassant)) :
         return coupEnPassant
 
     #cas ou on enlève le roque
     casBougerTourRoiRoque(tab, i1, j1)
-
+    # incrementNbMvtTot()
     #Cas ou on active l'en passant
     if (abs(tab[i1][j1])==1) :
         if (abs(i1-i2)==2 and ((i1==1 and i2==3) or (i1==6 and i2==4))) :
             activationEnPassant(tab, i1, j1)
 
-    verificationCasserEnPassant(tab, i1, j1, i2, j2)
+    # verificationCasserEnPassant(tab, i1, j1, i2, j2) #plus utile 
     valeur = remplacerValeur(tab, i1, j1, i2, j2)
+
+
+
     return (valeur, coup_normal)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def TupleEstNonNul(couple) :
     return couple!=(0,0)
@@ -714,5 +768,16 @@ def pionPrendCentreReine(tab) :
 def annulerCoupClassique(tab, i1, j1, i2, j2, pieceMange) :
     tab[i1][j1]=tab[i2][j2]
     tab[i2][j2]=pieceMange
+
+    etat_precedent = historique.pop()
+    restaurer_droits(etat_precedent)
+
+def restaurer_droits(etat_precedent):
+    global tabBoolPionB, tabBoolPionN, tabBoolRoi, tabBoolTour
+    
+    tabBoolPionB = etat_precedent[0]
+    tabBoolPionN = etat_precedent[1]
+    tabBoolRoi   = etat_precedent[2]
+    tabBoolTour  = etat_precedent[3]
 
 #647 lignes

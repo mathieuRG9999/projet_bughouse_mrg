@@ -43,6 +43,10 @@ class bughouse:
             p=self.plateau2
         return p
 
+    def getPlateauOppose(self, numPlateau) :
+        return (numPlateau+1) % 2
+
+
     def caseLibrePlateau(self, numPlateau, i, j) :
         p=self.quellePlateau(numPlateau)
         return p[i][j]==0
@@ -170,10 +174,16 @@ class bughouse:
             self.appliquerCoupPose(numPlateau, i1, j1, i2, j2)
             return -1
         else :
-            valeur=mouvement.appliquer_mouvement_classique(self.quellePlateau(numPlateau), i1, j1, i2, j2)
+            (valeur, type_de_coup) =mouvement.appliquer_mouvement_classique(self.quellePlateau(numPlateau), i1, j1, i2, j2)
             if (valeur==0):
                 return
             self.ajoutListe(numPlateau, -valeur) #on inverse le signe de la pièce capturer
+
+        
+
+
+
+        
         
     def appliquerCoupAleatoire(self, numPlateau) :
         # On récupère la liste complète des coups triés
@@ -275,19 +285,25 @@ class bughouse:
 
             if (echequier[1][5]<=0) : #on veut proteger cette zone en gros
                 score-= 50
-            score = pointPionCentraux(echequier, score) 
+            score = self.pointPionCentraux(echequier, score) 
 
         return score
 
-
+    def annulerCoupPoser(self, numPlateau, tab, j1, i2, j2) :
+        valPiece= tab[i2][j2]
+        tab[i2][j2] =0
+        self.ajoutListe(numPlateau, valPiece)
+        
 
     def annulerCoup(self, numPlateau, coup, etat_capture) : #on suppose que le coup a été appliqué et il faut l'annuler
         tab=self.quellePlateau(numPlateau)
+        nbPlateauOppose= self.getPlateauOppose(numPlateau)
         arrivee, depart, pieceMangee= coup
         i1, j1 = arrivee
         i2, j2 = depart
         if (i1==-1) : #le cas ou on a posé une troupe avant, piece mange=0
             annulerCoupPoser(tab, j1, i2, j2)
+            self.removeListe(numPlateau, pieceMangee)
         else :
-            annulerCoupClassique(tab, i1, j1, i2, j2, pieceMange)
+            self.annulerCoupClassique(tab, i1, j1, i2, j2, pieceMangee)
         
