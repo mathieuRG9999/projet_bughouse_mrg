@@ -4,13 +4,60 @@ import random
 
 class bughouse:
 
+    
+ #on règle le soucis du roque et du en passant
+
+
+
+
+    def initialiserTabRoi() :
+        return [False, False]
+
+    def initialiserTour() :
+        return [False, False, False, False]
+
+    def initialiserPion() :
+        return [False, False, False, False, False, False, False, False]
+
     def __init__(self):
+        #on met en place les coups spéciaux ici
+        self.tabBoolRoi1=self.initialiserTabRoi()
+        self.tabBoolRoi2=self.initialiserTabRoi()
+
+        self.tabBoolTour1 = self.initialiserTour()
+        self.tabBoolTour2 = self.initialiserTour()
+
+        self.tabBoolPionB1= self.initialiserPion()
+        self.tabBoolPionN1= self.initialiserPion()
+        self.tabBoolPionB2= self.initialiserPion()
+        self.tabBoolPionN2= self.initialiserPion()
+
+        self.sauvegarde1 = (self.tabBoolPionB1.copy(), self.tabBoolPionN1.copy(), self.tabBoolRoi1.copy(), self.tabBoolTour1.copy())
+        self.sauvegarde2 = (self.tabBoolPionB2.copy(), self.tabBoolPionN2.copy(), self.tabBoolRoi2.copy(), self.tabBoolTour2.copy())
+
+        self.historique_etats = []
+
+
         self.plateau1 = plateau.remplissage()
         self.plateau2 = plateau.remplissage()
         self.listestockagePlateau1 = []
         self.listestockagePlateau2 = []
         self.couleur1 = 0
         self.couleur2 = 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def remplirListe(self, xInitial, yInitial, xFutur, yFutur, numPlateau) :
         liste = self.quelleListe(numPlateau)

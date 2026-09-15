@@ -7,14 +7,26 @@ import math
 
 # couleur =0
 
-tabBoolRoi= [False, False]
-tabBoolTour=[False, False, False, False] #  TB1, TB2, TN1, TN2
 
-tabBoolPionB=[False, False, False, False, False, False, False, False] # pion blanc en Passant possible
-tabBoolPionN=[False, False, False, False, False, False, False, False] # pion blanc en Passant possible
+#on adapte ces fonctions à ca 
 
-sauvegarde = (tabBoolPionB.copy(), tabBoolPionN.copy(), tabBoolRoi.copy(), tabBoolTour.copy())
-historique_etats = []
+# tabBoolRoi= [False, False]
+# tabBoolTour=[False, False, False, False] #  TB1, TB2, TN1, TN2
+
+# tabBoolPionB=[False, False, False, False, False, False, False, False] # pion blanc en Passant possible
+# tabBoolPionN=[False, False, False, False, False, False, False, False] # pion blanc en Passant possible
+
+# sauvegarde = (tabBoolPionB.copy(), tabBoolPionN.copy(), tabBoolRoi.copy(), tabBoolTour.copy())
+# historique_etats = []
+
+
+
+
+
+
+
+
+
 
 nbMouvementTot = 0
         # 1 -> coup normal
@@ -31,19 +43,19 @@ coupPoseTroupe=4
 
 #pour le backtracking et annuler un coup du roque
 
-def annulerRoqueBlancGauche() :
+def annulerRoqueBlancGauche(tabBoolRoi, tabBoolTour) :
     tabBoolRoi[0]=False
     tabBoolTour[0]=False
 
-def annulerRoqueBlancDroite() :
+def annulerRoqueBlancDroite(tabBoolRoi, tabBoolTour) :
     tabBoolRoi[0]=False
     tabBoolTour[1]=False
 
-def annulerRoqueNoirGauche() :
+def annulerRoqueNoirGauche(tabBoolRoi, tabBoolTour) :
     tabBoolRoi[1]=False
     tabBoolTour[0]=False
 
-def annulerRoqueNoirDroite() :
+def annulerRoqueNoirDroite(tabBoolRoi, tabBoolTour) :
     tabBoolRoi[1]=False
     tabBoolTour[1]=False
 
@@ -51,10 +63,10 @@ def annulerRoqueNoirDroite() :
 
 #pour le backtracking et annuler un coup en passant
 
-def annulerEnPassantPionBlanc(position) :
+def annulerEnPassantPionBlanc(position, tabBoolPionB) :
     tabBoolPionB[position]=False
 
-def annulerEnPassantPionNoir(position) :
+def annulerEnPassantPionNoir(position, tabBoolPionN) :
     tabBoolPionN[position]=False
 
 ###########################################################################
@@ -152,7 +164,7 @@ def promotionPion(tab, i, j) :
         reponse = letter_to_troops(reponse)
     print("vous avez fait la promotion d'un pion")
 
-def promotion(tab, i, j, val) : #a verifier si c'est correct
+def promotion(tab, i, j, val, direction) : #a verifier si c'est correct
     changement(tab, i, j, val, direction)
 
 
@@ -205,7 +217,7 @@ def mouvementReine(tab, i, j) :
     return mouvementFou(tab, i, j) + mouvementTour(tab, i, j)
 
 
-def rajoutEnPassant(tab, i, j) :
+def rajoutEnPassant(tab, i, j, tabBoolPionB, tabBoolPionN) :
     if (tab[i][j]>0) :
         return rajoutEnPassantNeutre(tab, i, j, tabBoolPionN, 1)
     else :
@@ -249,7 +261,7 @@ def casRoqueVerif(tab, i, j, positionIBoucle, positionFBoucle, indice) :
             return False
     return True
 
-def ajoutMouvementRoque(tab, i, j) :
+def ajoutMouvementRoque(tab, i, j, tabBoolRoi, tabBoolTour) :
     liste= []
     indice=1
     if (tab[i][j]>0) :
@@ -456,7 +468,7 @@ def forcer_mouv_tour_cas_roque_bool(i, j, jAVerif) :
 
 
 
-def activationEnPassant(tab, i, j) :
+def activationEnPassant(tab, i, j, tabBoolPionB, tabBoolPionN) :
     if (tab[i][j]==1) : #cas d'un pion
         tabBoolPionB[j]=True
     if (tab[i][j]==-1) : #cas d'un pion
@@ -477,7 +489,7 @@ def parametres_en_passant(i, j) :
 
 
 
-def peut_on_appliquer_mvt_en_passant(tab, i1, j1, i2, j2) :
+def peut_on_appliquer_mvt_en_passant(tab, i1, j1, i2, j2, tabBoolPionB, tabBoolPionN) :
     indiceJDroite, indiceJGauche = tupleIncrementerDecrementer(j1)
     indiceMonter, indiceDescendre = tupleIncrementerDecrementer(i1)
 
@@ -510,7 +522,7 @@ def test_val_1D(tab, i, valeur) :
 
 
 
-def appliquer_mouvement_en_passant(tab, i1, j1, i2, j2) : #à factoriser 
+def appliquer_mouvement_en_passant(tab, i1, j1, i2, j2, tabBoolPionB, tabBoolPionN) : #à factoriser 
     indiceMonter, indiceDescendre, indiceJDroite, indiceJGauche = parametres_en_passant(i1, j1)
 
 
@@ -546,7 +558,7 @@ def verificationCasserEnPassantFactoriser(i2, j2, aux, position) :
         if (i2==position) :
             aux[j2]= False
 
-def verificationCasserEnPassant(tab, i1, j1, i2, j2) :
+def verificationCasserEnPassant(tab, i1, j1, i2, j2, tabBoolPionB, tabBoolPionN) :
     verificationCasserEnPassantFactoriser(i2, j2, tabBoolPionB, 2)
     verificationCasserEnPassantFactoriser(i2, j2, tabBoolPionN, 5)
 
@@ -595,13 +607,12 @@ def appliquer_mouvement_classique_cas_EnPassant(tab, i1, j1, i2, j2) :
 
 
 
-def reinitialisation_en_passant() :
-    global tabBoolPionB, tabBoolPionN
+def reinitialisation_en_passant(tabBoolPionB, tabBoolPionN) :
     tabBoolPionB = [False] * 8
     tabBoolPionN = [False] * 8
 
 
-def appliquer_mouvement_classique(tab, i1, j1, i2, j2) : 
+def appliquer_mouvement_classique(tab, i1, j1, i2, j2, tabBoolRoi, tabBoolTour, sauvegarde, historique_etats, tabBoolPionB, tabBoolPionN) : #comment faire pour adapter celui la à bughouse ?
     
     type_de_coup=(0,0)
 
@@ -609,7 +620,7 @@ def appliquer_mouvement_classique(tab, i1, j1, i2, j2) :
     sauvegarde = (tabBoolPionB.copy(), tabBoolPionN.copy(), tabBoolRoi.copy(), tabBoolTour.copy()) 
     historique_etats.append(sauvegarde)
 
-    reinitialisation_en_passant()
+    reinitialisation_en_passant(tabBoolPionB, tabBoolPionN)
 
     #on regarde le coup du roque
     coupRoque = appliquer_mouvement_classique_cas_roque(tab, i1, j1, i2, j2)
@@ -700,27 +711,27 @@ def remplacerValeur(tab, i1, j1, i2, j2) :
 
 
 
-def casStupideRoqueFactorisation(c1, c2, indice) :
+def casStupideRoqueFactorisation(c1, c2, indice, tabBoolRoiAdapter) : #on l'adapte pour pouvoir l'appeler de la bas
     if (c1 and c2) :
-        tabBoolRoi[indice]=True
+        tabBoolRoiAdapter[indice]=True
         return True
     return False
  
-def casStupideRoque(tab, i, j, signe) :
+def casStupideRoque(tab, i, j, signe, tabBoolRoiAdapter, tabBoolTourAdapter) : #il y a un soucis avec cette fonction c'est obligé
     indice=0
     if (signe<0) :
         indice=1
-    casStupideRoqueFactorisation(tabBoolTour[indice*2], tabBoolTour[indice*2+1], indice)
-    return tabBoolRoi[indice]
+    casStupideRoqueFactorisation(tabBoolTourAdapter[indice*2], tabBoolTourAdapter[indice*2+1], indice, tabBoolRoiAdapter)
+    return tabBoolRoiAdapter[indice]
 
-def enleverRoque(tab, i, j) : #elle met à jour les droits pour le roque
+def enleverRoque(tab, i, j, tabBoolRoi, tabBoolTour) : #elle met à jour les droits pour le roque
     signe=signePourLeRoque(i)
-    if (casStupideRoque(tab, i, j, signe)) :
+    if (casStupideRoque(tab, i, j, signe, tabBoolRoi, tabBoolTour)) :
         return
     enleverRoqueRoi(tab, i, j)
     enleverRoqueTour(tab, i, j)
 
-def enleverRoqueTour(tab, i1, j1) :
+def enleverRoqueTour(tab, i1, j1,tabBoolTour) :
     #on verifie si l'une des tours a bouges
     coordGenante= [(0,0), (0, 7), (7,0), (7, 7)]
     for i in range (4) :
@@ -728,7 +739,7 @@ def enleverRoqueTour(tab, i1, j1) :
         if (i1==x and j1==y) :
             tabBoolTour[i]=True
 
-def enleverRoqueRoi(tab, i1, j1) :
+def enleverRoqueRoi(tab, i1, j1, tabBoolRoi) :
     #on verifie si l'une des tours a bouges
     coordGenante= [(0,4), (7, 4)]
     for i in range (2) :
@@ -765,15 +776,14 @@ def pionPrendCentreRoi(tab) :
 def pionPrendCentreReine(tab) :
     return pionPositionPrendCentre(tab, 3)
 
-def annulerCoupClassique(tab, i1, j1, i2, j2, pieceMange) :
+def annulerCoupClassique(tab, i1, j1, i2, j2, pieceMange,  ) :
     tab[i1][j1]=tab[i2][j2]
     tab[i2][j2]=pieceMange
 
-    etat_precedent = historique.pop()
+    etat_precedent = historique.pop() # lui est sensé définir quoi ?
     restaurer_droits(etat_precedent)
 
-def restaurer_droits(etat_precedent):
-    global tabBoolPionB, tabBoolPionN, tabBoolRoi, tabBoolTour
+def restaurer_droits(etat_precedent, tabBoolRoi, tabBoolTour, tabBoolPionB, tabBoolPionN):
     
     tabBoolPionB = etat_precedent[0]
     tabBoolPionN = etat_precedent[1]
