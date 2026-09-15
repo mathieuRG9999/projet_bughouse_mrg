@@ -10,22 +10,6 @@ import math
 
 #on adapte ces fonctions à ca 
 
-# tabBoolRoi= [False, False]
-# tabBoolTour=[False, False, False, False] #  TB1, TB2, TN1, TN2
-
-# tabBoolPionB=[False, False, False, False, False, False, False, False] # pion blanc en Passant possible
-# tabBoolPionN=[False, False, False, False, False, False, False, False] # pion blanc en Passant possible
-
-# sauvegarde = (tabBoolPionB.copy(), tabBoolPionN.copy(), tabBoolRoi.copy(), tabBoolTour.copy())
-# historique_etats = []
-
-
-
-
-
-
-
-
 
 
 nbMouvementTot = 0
@@ -405,7 +389,7 @@ def valeurMouvement(tab, i, j, i1, j1) : #pour l'instant, on suppose que les pi�
     signePieceInitial =signe(tab[i][j])
     signePieceFinale =signe(tab[i1][j1])
     if (abs(tab[i1][j1])==6) : #cas ou on peut manger le roi
-        return math.sup
+        return math.inf
     return min(abs(tab[i1][j1]), mauvaisMouvementValeur(tab, i, j, i1, j1))
 
 def heuristiquePoserTroupe(tab, valeur, x, y) :
@@ -607,9 +591,9 @@ def appliquer_mouvement_classique_cas_EnPassant(tab, i1, j1, i2, j2) :
 
 
 
-def reinitialisation_en_passant(tabBoolPionB, tabBoolPionN) :
-    tabBoolPionB = [False] * 8
-    tabBoolPionN = [False] * 8
+def reinitialisation_en_passant(tabBoolPionB, tabBoolPionN, etat_precedent) : #ici, comment faire pour réinitialiser mes variables ?
+    tabBoolPionB = etat_precedent[0]
+    tabBoolPionN = etat_precedent[0]
 
 
 def appliquer_mouvement_classique(tab, i1, j1, i2, j2, tabBoolRoi, tabBoolTour, sauvegarde, historique_etats, tabBoolPionB, tabBoolPionN) : #comment faire pour adapter celui la à bughouse ?
@@ -789,5 +773,20 @@ def restaurer_droits(etat_precedent, tabBoolRoi, tabBoolTour, tabBoolPionB, tabB
     tabBoolPionN = etat_precedent[1]
     tabBoolRoi   = etat_precedent[2]
     tabBoolTour  = etat_precedent[3]
+
+def partie_terminee(echequier) :
+    RoiBlancVivant=False
+    RoiNoirVivant=False
+    for i in 8 :
+        for j in 8 :
+            if (RoiBlancVivant and RoiNoirVivant) :
+                return 0
+            if (conditionditionPartieTermineeFact(echequier, i, j, RoiBlancVivant, 6)) :
+                RoiNoirVivant=True
+            if (conditionditionPartieTermineeFact(echequier, i, j, RoiNoirVivant, -6)) :
+                RoiNoirVivant=True
+
+def conditionditionPartieTermineeFact(echequier, i, j, testBool, val) :
+    return not(testBool) and echequier[i][j]==val
 
 #647 lignes

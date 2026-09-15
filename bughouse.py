@@ -141,7 +141,7 @@ class bughouse:
     def validerAjoutPiece(self, reserveNum, numPlateau, valeur, i, j) :
         # reserveNum : la réserve d'où vient la pièce (listestockagePlateauX)
         # numPlateau : le plateau sur lequel on veut la poser
-        return self.valeurPresente(reserveNum, valeur) and self.caseLibrePlateau(numPlateau, i, j) and self.ajoutPionDansLesLimites(i, j)
+        return self.valeurPresente(reserveNum, valeur) and self.caseLibrePlateau(numPlateau, i, j) and self.ajoutPionDansLesLimites(i, j, valeur)
 
     def retirerDeReserve(self, reserveNum, index) :
         liste = self.quelleListe(reserveNum)
@@ -149,8 +149,8 @@ class bughouse:
             return liste.pop(index)
         return None
 
-    def ajoutPionDansLesLimites(self, i, j) :
-        return (0<=j<8 and 0<i<7)
+    def ajoutPionDansLesLimites(self, i, j, valeur) :
+        return (0<=j<8 and 0<i<7 and abs(valeur==1))
 
 #on va maintenant récuperer l'ensemble des coups possibles
 
@@ -275,10 +275,18 @@ class bughouse:
                     
             return meilleur_coup
 
+    def partie_terminee(self, numPlateau) : 
+        # 0 -> ca joue
+        # 1 -> plus de roi noir
+        #  -1 -> plus de roi blanc
+        echequier = self.quellePlateau(numPlateau)
+        return mouvement.partie_terminee(echequier)
+
+
     def minimax(self, numPlateau, profondeur, alpha, beta, maximisant):
             # Condition d'arrêt : profondeur atteinte ou fin de match
             # (Il faudra que tu crées self.partie_terminee(numPlateau))
-            if profondeur == 0 or self.partie_terminee(numPlateau):
+            if profondeur == 0 or abs(self.partie_terminee(numPlateau))==1:
                 return self.evaluerPlateau(numPlateau) # Ta fonction d'heuristique !
 
             coups_possibles = self.joueMieuxQuAleatoire(numPlateau)
@@ -349,8 +357,8 @@ class bughouse:
         i1, j1 = arrivee
         i2, j2 = depart
         if (i1==-1) : #le cas ou on a posé une troupe avant, piece mange=0
-            annulerCoupPoser(tab, j1, i2, j2)
+            self.annulerCoupPoser(numPlateau, tab, j1, i2, j2)
             self.removeListe(numPlateau, pieceMangee)
         else :
-            self.annulerCoupClassique(tab, i1, j1, i2, j2, pieceMangee)
+            mouvement.annulerCoupClassique(tab, i1, j1, i2, j2, pieceMangee)
         
