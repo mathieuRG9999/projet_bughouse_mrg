@@ -120,7 +120,7 @@ def verifPuisAjoutMvtPion(tab, i, j, decalement, liste) :
     if (verifMvtPionFact(tab, i, j, decalement*2)) :
         liste.append((i+2*decalement, j))    
 
-def mouvementPion(tab, i, j) :
+def mouvementPion(tab, i, j, tabBoolPionB, tabBoolPionN) :
     liste= PionMange(tab, i, j)
     val =tab[i][j]
     direction = signe(val)
@@ -132,7 +132,7 @@ def mouvementPion(tab, i, j) :
         else  :
             if (verifMvtPionFact(tab, i, j, direction)) :
                 liste.append((i+direction, j))
-    liste.extend(rajoutEnPassant(tab, i, j))
+    liste.extend(rajoutEnPassant(tab, i, j, tabBoolPionB, tabBoolPionN))
     return liste
 
 def changement(tab, i, j, val, direction) :
@@ -567,18 +567,18 @@ def verificationCasserEnPassant(tab, i1, j1, i2, j2, tabBoolPionB, tabBoolPionN)
 
  #on corrige cette fonction pour pouvoir apres l'annuler
 
-def casBougerTourRoiRoque(tab, i, j) :
+def casBougerTourRoiRoque(tab, i, j, tabBoolRoi, tabBoolTour) :
     liste= [(0,0), (0, 7), (7,0), (7,7), (0,4), (7, 4)]
     for coord in liste :
         if ((i, j)==coord) :
-            enleverRoque(tab, i, j)
+            enleverRoque(tab, i, j, tabBoolRoi, tabBoolTour)
     
 
 
-def appliquer_mouvement_classique_cas_roque(tab, i1, j1, i2, j2) :
+def appliquer_mouvement_classique_cas_roque(tab, i1, j1, i2, j2, tabBoolRoi, tabBoolTour) :
     if (abs(tab[i1][j1])==6 and abs(j1-j2)==2) : # on est dans le cas d'un roque
         forcer_mouv_tour_cas_roque(tab, i2, j2)
-        enleverRoque(tab, i1, j1)
+        enleverRoque(tab, i1, j1, tabBoolRoi, tabBoolTour)
         return (0,coup_roque)
     return (0,0)
 
@@ -712,8 +712,8 @@ def enleverRoque(tab, i, j, tabBoolRoi, tabBoolTour) : #elle met à jour les dro
     signe=signePourLeRoque(i)
     if (casStupideRoque(tab, i, j, signe, tabBoolRoi, tabBoolTour)) :
         return
-    enleverRoqueRoi(tab, i, j)
-    enleverRoqueTour(tab, i, j)
+    enleverRoqueRoi(tab, i, j, tabBoolRoi)
+    enleverRoqueTour(tab, i, j, tabBoolTour)
 
 def enleverRoqueTour(tab, i1, j1,tabBoolTour) :
     #on verifie si l'une des tours a bouges
@@ -760,7 +760,7 @@ def pionPrendCentreRoi(tab) :
 def pionPrendCentreReine(tab) :
     return pionPositionPrendCentre(tab, 3)
 
-def annulerCoupClassique(tab, i1, j1, i2, j2, pieceMange,  ) :
+def annulerCoupClassique(tab, i1, j1, i2, j2, pieceMange, historique, etat_precedent) :
     tab[i1][j1]=tab[i2][j2]
     tab[i2][j2]=pieceMange
 
@@ -774,15 +774,15 @@ def restaurer_droits(etat_precedent, tabBoolRoi, tabBoolTour, tabBoolPionB, tabB
     tabBoolRoi   = etat_precedent[2]
     tabBoolTour  = etat_precedent[3]
 
-def partie_terminee(echequier) :
+def partie_terminee(echequier) : #erreur à revoir !
     RoiBlancVivant=False
     RoiNoirVivant=False
-    for i in 8 :
+    for i in range (8) :
         for j in 8 :
             if (RoiBlancVivant and RoiNoirVivant) :
                 return 0
             if (conditionditionPartieTermineeFact(echequier, i, j, RoiBlancVivant, 6)) :
-                RoiNoirVivant=True
+                RoiBlancVivant=True
             if (conditionditionPartieTermineeFact(echequier, i, j, RoiNoirVivant, -6)) :
                 RoiNoirVivant=True
 

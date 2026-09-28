@@ -62,7 +62,11 @@ class bughouse:
     def remplirListe(self, xInitial, yInitial, xFutur, yFutur, numPlateau) :
         liste = self.quelleListe(numPlateau)
         tab = self.quellePlateau(numPlateau)
-        valeurMangee = mouvement.appliquer_mouvement_classique(tab, xInitial, yInitial, xFutur, yFutur)
+        valeurMangee=0
+        if (numPlateau==1) :
+            valeurMangee = mouvement.appliquer_mouvement_classique(tab, xInitial, yInitial, xFutur, yFutur, self.tabBoolRoi1, self.tabBoolTour1, self.sauvegarde1, self.historique_etats, self.tabBoolPionB1, self.tabBoolPionN1)
+        else : 
+            valeurMangee = mouvement.appliquer_mouvement_classique(tab, xInitial, yInitial, xFutur, yFutur, self.tabBoolRoi2, self.tabBoolTour2, self.sauvegarde2, self.historique_etats, self.tabBoolPionB2, self.tabBoolPionN2)
         if (valeurMangee != 0) :
             liste.append(valeurMangee)
 
@@ -150,7 +154,7 @@ class bughouse:
         return None
 
     def ajoutPionDansLesLimites(self, i, j, valeur) :
-        return (0<=j<8 and 0<i<7 and abs(valeur==1))
+        return (0<=j<8 and 0<i<7 and abs(valeur)==1)
 
 #on va maintenant récuperer l'ensemble des coups possibles
 
@@ -221,7 +225,10 @@ class bughouse:
             self.appliquerCoupPose(numPlateau, i1, j1, i2, j2)
             return -1
         else :
-            (valeur, type_de_coup) =mouvement.appliquer_mouvement_classique(self.quellePlateau(numPlateau), i1, j1, i2, j2)
+            if (numPlateau==1) : # erreur potentiel -> la liste des rois, comment 
+                (valeur, type_de_coup) =mouvement.appliquer_mouvement_classique(self.quellePlateau(numPlateau), i1, j1, i2, j2, self.tabBoolRoi1, self.tabBoolTour1, self.sauvegarde1, self.historique_etats, self.tabBoolPionB1, self.tabBoolPionN1)
+            else :
+                (valeur, type_de_coup) =mouvement.appliquer_mouvement_classique(self.quellePlateau(numPlateau), i1, j1, i2, j2, self.tabBoolRoi2, self.tabBoolTour2, self.sauvegarde2, self.historique_etats, self.tabBoolPionB2, self.tabBoolPionN2)
             if (valeur==0):
                 return
             self.ajoutListe(numPlateau, -valeur) #on inverse le signe de la pièce capturer
@@ -350,7 +357,7 @@ class bughouse:
         self.ajoutListe(numPlateau, valPiece)
         
 
-    def annulerCoup(self, numPlateau, coup, etat_capture) : #on suppose que le coup a été appliqué et il faut l'annuler
+    def annulerCoup(self, numPlateau, coup, etat_precedent) : #on suppose que le coup a été appliqué et il faut l'annuler
         tab=self.quellePlateau(numPlateau)
         nbPlateauOppose= self.getPlateauOppose(numPlateau)
         arrivee, depart, pieceMangee= coup
@@ -360,5 +367,5 @@ class bughouse:
             self.annulerCoupPoser(numPlateau, tab, j1, i2, j2)
             self.removeListe(numPlateau, pieceMangee)
         else :
-            mouvement.annulerCoupClassique(tab, i1, j1, i2, j2, pieceMangee)
+            mouvement.annulerCoupClassique(tab, i1, j1, i2, j2, pieceMangee, self.historique_etats, etat_precedent)
         
